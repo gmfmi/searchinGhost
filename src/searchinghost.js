@@ -11,19 +11,19 @@ export default class SearchinGhost {
             outputId: 'search-results',
             outputElementType: 'div',
             template: function(post) {
-                return `<a href="${post.url}">
-                <figure>
-                    <img src="${post.feature_image}">
-                </figure>
+                var t = `<a href="${post.url}"><figure>`
+                if (post.feature_image) t += `<img src="${post.feature_image}">`
+                t += `</figure>
                 <section>
                     <header>#${post.tags} - ${post.published_at}</header>
                     <h2>${post.title}</h2>
                     <p>${post.excerpt}</p>
                 </section>
                 </a>`
+                return t;
             },
             date: {
-                locale: 'fr-FR',
+                locale: 'en-US',
                 options: { year: 'numeric', month: 'short', day: 'numeric' }
             },
             debug: false
