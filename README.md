@@ -133,6 +133,11 @@ Here is the complete configuration used by default:
 - **version** (string: 'v3')
 > Set the Ghost API version. For now, only the v3 is available.
 
+- **loadOn** (string: 'focus')
+> Set the library loading strategy. It can be triggered when the HTML page has loaded
+> or only on demand when the user click on the search bar.
+> values: `"focus"` or `"page"`
+
 - **inputId** (string: 'search-bar')
 > The HTML `id` param defined on your input search bar.
 > Do not include '#' in the name.
@@ -176,18 +181,25 @@ Here is the complete configuration used by default:
 > to display application logs.
 
 
+## Internals
+
+This section describe how searchinGhost works from the inside. It will make the code logic
+clearer and hopefully motivate you to actually read it.
+
+TODO
+
 
 ## Known issues
 
 - [ ] Properly handle network errors
-- [ ] Define a real logging strategy based on `debug: true`
+- [x] Define a real logging strategy based on `debug: true`
 
 
 ## Road map
 
 - [x] Set up a clean build process using Webpack
 - [ ] Ask someone to do a code review because I am not a Javascript dev 😅
-- [ ] Allow user to fetch data when page loads (not only on focus)
+- [x] Allow user to fetch data when page loads (not only on focus)
 - [ ] Maybe use the GhostContentApi library to fetch the content and give more flexibility to users (also support API v2?)
 - [ ] Add callback like `onInit()`, `onDataFetch()`, ...
 - [ ] Make the demo mobile-first, currently it looks ugly on small screens

@@ -1,6 +1,6 @@
 {
   "name": "searchinghost",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A pure javascript, lightweight & full-text search engine for Ghost (blog)",
   "main": "dist/searchinghost.min.js",
   "browser": "dist/searchinghost.min.js",

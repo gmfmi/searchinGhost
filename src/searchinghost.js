@@ -7,6 +7,7 @@ export default class SearchinGhost {
             url: window.location.origin,
             key: '',
             version: 'v3',
+            loadOn: 'focus',
             inputId: 'search-bar',
             outputId: 'search-results',
             outputElementType: 'div',
@@ -37,15 +38,32 @@ export default class SearchinGhost {
         // init the search engine
         this.initIndex();
         
-        // Add listeners to trigger event from search bar
+        // Add listeners to trigger events from search bar
         this.setEventListners();
+
+        // Finally, load the search engine
+        if (this.config.loadOn === 'page') {
+            window.addEventListener('load', () => {
+                this.loadResources();
+            });
+        } else {
+            let searchBar = document.getElementById(this.config.inputId);
+            searchBar.addEventListener('focus', () => {
+                if (!this.dataLoaded) {
+                    this.loadResources();
+                }
+            });
+        }
     }
 
     buildConfig(args) {
         for (let [key, value] of Object.entries(args)) {
             this.config[key] = value;
         }
+
         this.config.apiUrl = `${this.config.url}/ghost/api/${this.config.version}/content/posts/`
+
+        // TODO: set a variable if "localStorage" is not enabled
     }
 
     initIndex() {
@@ -70,18 +88,13 @@ export default class SearchinGhost {
     setEventListners() {
         let searchBar = document.getElementById(this.config.inputId);
 
+        // Disable page reloading when 'enter' key is pressed
         let searchForm = searchBar.closest('form');
         if (searchForm !== null) {
             searchForm.addEventListener("submit", (e) => {
                 e.preventDefault();
             });
         }
-
-        searchBar.addEventListener('focus', () => {
-            if (!this.dataLoaded) {
-                this.loadResources();
-            }
-        });
 
         searchBar.addEventListener("keyup", () => {
             if (!this.dataLoaded) {
@@ -95,11 +108,12 @@ export default class SearchinGhost {
     loadResources() {
         let storedIndex = this.storage.getItem("SearchinGhost_index");
         if (storedIndex !== null) {
-            console.debug("Load locally stored index");
+            if (this.config.debug) console.log("Load locally stored index");
             this.index.import(storedIndex);
             this.dataLoaded = true;
             this.validateCache();
         } else {
+            if (this.config.debug) console.log("No stored index found");
             this.fetch();
             this.dataLoaded = true;
         }
@@ -107,7 +121,7 @@ export default class SearchinGhost {
 
     reformat(posts) {
         posts.forEach((post, id) => {
-            // use a number id, improve performance & disk space
+            // use a number as id, improve performance & disk space
             post.id = id;
 
             // display date using 'locale' format
@@ -140,7 +154,7 @@ export default class SearchinGhost {
     }
 
     fetch() {
-        console.debug("Start fetching posts from Ghost");
+        if (this.config.debug) console.log("Start fetching posts from Ghost API");
         fetch(this.getAllPostsUrl())
         .then(response => {
             return response.json();
@@ -155,9 +169,9 @@ export default class SearchinGhost {
             this.storage.setItem("SearchinGhost_updatedat", updatedAt);
             this.storage.setItem("SearchinGhost_watermark", new Date().toISOString());
             this.dataLoaded = true;
-            console.debug("Cached data now updated & stored locally");
+            if (this.config.debug) console.log("Search index created and stored");
         }).catch(error => {
-            console.error("Unable to fetch and store post resources", error);
+            console.error("Unable to fetch or store post resources", error);
         });
     }
 
@@ -178,7 +192,7 @@ export default class SearchinGhost {
     }
 
     validateCache() {
-        console.debug("Start validating stored cache data");
+        if (this.config.debug) console.log("Start validating stored cache data");
         
         let storedWatermark = this.storage.getItem("SearchinGhost_watermark");
         if (storedWatermark === null) {
@@ -189,7 +203,7 @@ export default class SearchinGhost {
 
         let elapsedTime = Math.round((new Date() - storedWatermark) / 1000);
         if (elapsedTime < 3600) {
-            console.debug(`Skip cache refreshing, updated less than 1h ago (${elapsedTime} secs)`)
+            if (this.config.debug) console.log(`Skip cache refreshing, updated less than 1h ago (${elapsedTime} secs)`)
             return;
         }
         
@@ -200,13 +214,13 @@ export default class SearchinGhost {
             let storedUpdateTimestamp = this.storage.getItem("SearchinGhost_updatedat");
             let foundUpdateTimestamp = responseContent.posts[0].updated_at;
             if (foundUpdateTimestamp !== storedUpdateTimestamp) {
-                console.debug("Local cache not up to date, start refreshing data");
+                if (this.config.debug) console.log("Local cache not up to date, invalidating it");
                 this.fetch();
             } else {
-                console.debug("Local cache up to date");
+                if (this.config.debug) console.log("Local cached data up to date");
             }
         }).catch(error => {
-            console.error("Unable to fetch the latest post information", error);
+            console.error("Unable to fetch the latest post information to check cache state", error);
         });
     }
 
