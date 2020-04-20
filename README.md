@@ -1,3 +1,9 @@
+![](https://img.shields.io/npm/v/searchinghost?style=flat-square)
+![](https://img.shields.io/bundlephobia/minzip/searchinghost?label=gzip&style=flat-square)
+![](https://img.shields.io/badge/ghost-%3E%3D%203.0-blue?style=flat-square)
+[![](https://data.jsdelivr.com/v1/package/npm/searchinghost/badge)](https://www.jsdelivr.com/package/npm/searchinghost)
+
+
 # SeachinGhost
 
 A pure javascript, lightweight & full-text search engine for [Ghost](https://ghost.org/) (blog)
@@ -9,9 +15,9 @@ SearchinGhost is a lightweight search engine dedicated to the Ghost blogging pla
 the [Ghost Content API](https://ghost.org/docs/api/v3/content/) to load your blog content and the powerful
 [FlexSearch](https://github.com/nextapps-de/flexsearch) library to index and run search queries.
 
-Everything happens in the client browser, this helps us to deliver blazing-fast seach result and display them
+Everything happens in the client browser, it helps us to deliver blazing fast search results and displays them
 in real-time to your users (a.k.a "search-as-you-type"). We also take care about minimizing network loads by
-relying on the browser `localStorage` and only sending request when necessary.
+relying on the browser `localStorage` only sending request when necessary.
 
 Try it by yourself with this [Live Demo](https://gmfmi.github.io/searchinGhost/) (data fetched from the offical Ghost demo).
 
@@ -24,7 +30,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <div id="search-results"></div>
 
-<script src="https://cdn.jsdelivr.net/gh/gmfmi/searchinGhost/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@latest/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -38,11 +44,11 @@ If you need a more fine-grained configuration to better fit your needs, please r
 
 ## Installation
 
-You can install searchinGhost using various method, here are the possibilities:
+You can install searchinGhost using various methods, here are the possibilities:
 
 - **From source**
 
-Download the `dist/searchinghost.min.js` file to your `js` them folder and update your template with:
+Download the `dist/searchinghost.min.js` file to your `js` theme folder and update your template with:
 
 ```html
 <script src="{{asset 'js/searchinghost.min.js'}}"></script>
@@ -51,15 +57,15 @@ Download the `dist/searchinghost.min.js` file to your `js` them folder and updat
 - **From a Content Delivery Network (CDN)**
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/searchinghost@0.1.0/dist/searchinghost.min.js"></script>
-<!-- Set a version is prefered but if you want to be bleeding edge... -->
-<script src="https://cdn.jsdelivr.net/gh/searchinghost/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.1.0/dist/searchinghost.min.js"></script>
+<!-- Setting a version is prefered (but if you want to live bleeding edge...) -->
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@latest/dist/searchinghost.min.js"></script>
 ```
 
 - **From NPM**
 
 ```sh
-$ npm install searchinghost --save-dev 
+$ npm install searchinghost
 ```
 
 ```js
@@ -71,8 +77,8 @@ var SearchinGhost = require('searchinghost');
 
 ## Configuration
 
-When using searchinGhost, the only mandatory field is `key`.
-Any other field get a default value and is optional. But of course,
+When using searchinGhost, the only mandatory configuration field is `key`.
+Any other field get a default value and is optional. Nevertheless,
 a little bit of configuration could be worth it!
 
 ```js
@@ -141,7 +147,7 @@ Here is the complete configuration used by default:
 
 - **outputElementType** (string: 'div')
 > By default, the output element is expected to be a `div` but you can
-> use what ever you want.
+> use whatever you want.
 >
 > example: 'section'
 
@@ -166,8 +172,8 @@ Here is the complete configuration used by default:
 > to get more information.
 
 - **debug** (boolean: false)
-> When something is not working as expected, set this option to `true`
-> to see the application logs.
+> When something is not working as expected, set to `true`
+> to display application logs.
 
 
 
@@ -182,7 +188,7 @@ Here is the complete configuration used by default:
 - [x] Set up a clean build process using Webpack
 - [ ] Ask someone to do a code review because I am not a Javascript dev 😅
 - [ ] Allow user to fetch data when page loads (not only on focus)
-- [ ] Maybe use the GhostContentApi library to fech the content and give more flexibility to users (also support API v2?)
+- [ ] Maybe use the GhostContentApi library to fetch the content and give more flexibility to users (also support API v2?)
 - [ ] Add callback like `onInit()`, `onDataFetch()`, ...
 - [ ] Make the demo mobile-first, currently it looks ugly on small screens
 
@@ -210,7 +216,7 @@ Here is a short list of other related projects. You should definitely give
 them a try to see if they better fit your needs:
 
 
-[Ghost Hunter](https://github.com/jamalneufeld/ghostHunter) (101 Kb, 26 Kb gzip)
+[Ghost Hunter](https://github.com/jamalneufeld/ghostHunter) (101 kB, 26 kB gzip)
 
 > pros:
 > - Probably the most famous
@@ -224,25 +230,25 @@ them a try to see if they better fit your needs:
 > - The source code became messy over time
 
 
-[Ghost search](https://github.com/HauntedThemes/ghost-search) (12 Kb, 4.2 Kb gzip)
+[Ghost search](https://github.com/HauntedThemes/ghost-search) (12 kB, 4.2 kB gzip)
 
 > pros:
-> - Well writen and easy-to-ready code base
+> - Well writen and easy-to-read code base
 > - Leverage 'fuzzy' capabilities
 >
 > cons:
-> - Browser lags when seaching long words
+> - Browser lags when searching long words
 > - Might send too many API requests
 > - Do not use a scoring system to display the best results first
 
  
-[Ghost finder](https://github.com/electronthemes/ghost-finder) (827 Kb, 159 Kb gzip)
+[Ghost finder](https://github.com/electronthemes/ghost-finder) (827 kB, 159 kB gzip)
 
 > pros:
 > - Pure Javascript library
 >
 > cons:
 > - The incredibly massive final bundle size
-> - Send an HTTP request at each key pressed!
+> - Send an HTTP request for each key pressed!
 > - Do not use a search engine, only look for substring in posts titles
 > - Do not correctly index accentuated characters (e.g 'é' should be found with 'e')
