@@ -54,7 +54,7 @@ export default class SearchinGhost {
                 "id": "id",
                 "field": [
                     "title",
-                    "primary_tag",
+                    "tags",
                     "excerpt",
                     "plaintext"
                 ]
@@ -107,8 +107,13 @@ export default class SearchinGhost {
 
     reformat(posts) {
         posts.forEach((post, id) => {
+            // use a number id, improve performance & disk space
             post.id = id;
+
+            // display date using 'locale' format
             post.published_at = this.prettyDate(post.published_at);
+
+            // only used to watermark, remove it before indexing
             delete post.updated_at;
 
             if (post.custom_excerpt !== null) {
@@ -208,7 +213,7 @@ export default class SearchinGhost {
     getAllPostsUrl() {
         const apiParams = `?key=${this.config.key}`
                             + '&fields=title,url,excerpt,custom_excerpt,published_at,updated_at,feature_image'
-                            + '&include=tags,authors'
+                            + '&include=tags'
                             + '&formats=plaintext'
                             + '&order=updated_at%20desc'
                             + '&limit=all'

@@ -1,11 +1,12 @@
 {
   "name": "searchinghost",
   "version": "0.1.0",
-  "description": "TODO",
+  "description": "A pure javascript, lightweight & full-text search engine for Ghost (blog)",
   "main": "dist/searchinghost.min.js",
   "browser": "dist/searchinghost.min.js",
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "watch": "webpack --mode=development --watch"
   },
   "repository": {
     "type": "git",
