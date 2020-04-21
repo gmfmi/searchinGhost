@@ -27,13 +27,21 @@ export default class SearchinGhost {
                 locale: 'en-US',
                 options: { year: 'numeric', month: 'short', day: 'numeric' }
             },
+            onFetchStart: function() {},
+            onFetchEnd: function(posts) {},
+            onIndexBuildStart: function() {},
+            onIndexBuildEnd: function() {},
+            onSearchStart: function() {},
+            onSearchEnd: function(posts) {},
             debug: false
         }
 
         this.buildConfig(args);
 
         this.dataLoaded = false;
-        this.storage = localStorage;
+
+        // TODO: what if 'localStorage' not enabled ?
+        this.storage = window.localStorage;
 
         // init the search engine
         this.initIndex();
@@ -61,9 +69,7 @@ export default class SearchinGhost {
             this.config[key] = value;
         }
 
-        this.config.apiUrl = `${this.config.url}/ghost/api/${this.config.version}/content/posts/`
-
-        // TODO: set a variable if "localStorage" is not enabled
+        this.config.apiUrl = `${this.config.url}/ghost/api/${this.config.version}/content/posts/`;
     }
 
     initIndex() {
@@ -88,7 +94,7 @@ export default class SearchinGhost {
     setEventListners() {
         let searchBar = document.getElementById(this.config.inputId);
 
-        // Disable page reloading when 'enter' key is pressed
+        // Disable page reloading when the 'enter' key is pressed
         let searchForm = searchBar.closest('form');
         if (searchForm !== null) {
             searchForm.addEventListener("submit", (e) => {
@@ -109,13 +115,14 @@ export default class SearchinGhost {
         let storedIndex = this.storage.getItem("SearchinGhost_index");
         if (storedIndex !== null) {
             if (this.config.debug) console.log("Load locally stored index");
+            this.config.onIndexBuildStart();
             this.index.import(storedIndex);
             this.dataLoaded = true;
+            this.config.onIndexBuildEnd();
             this.validateCache();
         } else {
             if (this.config.debug) console.log("No stored index found");
             this.fetch();
-            this.dataLoaded = true;
         }
     }
 
@@ -155,20 +162,24 @@ export default class SearchinGhost {
 
     fetch() {
         if (this.config.debug) console.log("Start fetching posts from Ghost API");
+        this.config.onFetchStart();
         fetch(this.getAllPostsUrl())
         .then(response => {
             return response.json();
         }).then(responseContent => {
+            this.config.onFetchEnd(responseContent);
+            this.config.onIndexBuildStart();
             let updatedAt = responseContent.posts[0].updated_at;
             let posts = this.reformat(responseContent.posts);
             this.initIndex();
             posts.forEach(post => {
                 this.index.add(post);
             });
+            this.dataLoaded = true;
+            this.config.onIndexBuildEnd();
             this.storage.setItem("SearchinGhost_index", this.index.export());
             this.storage.setItem("SearchinGhost_updatedat", updatedAt);
             this.storage.setItem("SearchinGhost_watermark", new Date().toISOString());
-            this.dataLoaded = true;
             if (this.config.debug) console.log("Search index created and stored");
         }).catch(error => {
             console.error("Unable to fetch or store post resources", error);
@@ -176,14 +187,22 @@ export default class SearchinGhost {
     }
 
     search(query) {
+        this.config.onSearchStart();
+
         let postsFound = this.index.search(query, {
             limit: 7
         });
 
+        this.display(postsFound);
+
+        this.config.onSearchEnd(postsFound);
+    }
+
+    display(posts) {
         let outputHtmlElement = document.getElementById(this.config.outputId);
         outputHtmlElement.innerHTML = "";
         
-        postsFound.forEach(post => {
+        posts.forEach(post => {
             let resultNode = document.createElement(this.config.outputElementType);
             resultNode.classList.add(`${this.config.outputId}-item`);
             resultNode.innerHTML = this.config.template(post);
@@ -197,10 +216,9 @@ export default class SearchinGhost {
         let storedWatermark = this.storage.getItem("SearchinGhost_watermark");
         if (storedWatermark === null) {
             return;
-        } else {
-            storedWatermark = new Date(storedWatermark);
         }
-
+        
+        storedWatermark = new Date(storedWatermark);
         let elapsedTime = Math.round((new Date() - storedWatermark) / 1000);
         if (elapsedTime < 3600) {
             if (this.config.debug) console.log(`Skip cache refreshing, updated less than 1h ago (${elapsedTime} secs)`)

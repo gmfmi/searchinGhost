@@ -1,6 +1,6 @@
-![](https://img.shields.io/npm/v/searchinghost?style=flat-square)
+[![](https://img.shields.io/npm/v/searchinghost?style=flat-square)](https://www.npmjs.com/package/searchinghost)
 ![](https://img.shields.io/bundlephobia/minzip/searchinghost?label=gzip&style=flat-square)
-![](https://img.shields.io/badge/ghost-%3E%3D%203.0-blue?style=flat-square)
+[![](https://img.shields.io/badge/ghost-%3E%3D%203.0-blue?style=flat-square)](https://ghost.org/)
 [![](https://data.jsdelivr.com/v1/package/npm/searchinghost/badge)](https://www.jsdelivr.com/package/npm/searchinghost)
 
 
@@ -30,7 +30,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <div id="search-results"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@latest/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.2.0/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -57,7 +57,7 @@ Download the `dist/searchinghost.min.js` file to your `js` theme folder and upda
 - **From a Content Delivery Network (CDN)**
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.1.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.2.0/dist/searchinghost.min.js"></script>
 <!-- Setting a version is prefered (but if you want to live bleeding edge...) -->
 <script src="https://cdn.jsdelivr.net/npm/searchinghost@latest/dist/searchinghost.min.js"></script>
 ```
@@ -114,6 +114,12 @@ Here is the complete configuration used by default:
         locale: 'en-US',
         options: { year: 'numeric', month: 'short', day: 'numeric' }
     },
+    onFetchStart: function() {},
+    onFetchEnd: function(posts) {},
+    onIndexBuildStart: function() {},
+    onIndexBuildEnd: function() {},
+    onSearchStart: function() {},
+    onSearchEnd: function(posts) {},
     debug: false
 }
 ```
@@ -176,6 +182,83 @@ Here is the complete configuration used by default:
 > Define the date format fetched from posts. See the [MDN reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString#Using_options)
 > to get more information.
 
+- **onFetchStart** (function)
+> Define a callback function before we fetch the data from the Ghost API.
+> This function takes no argument.
+>
+> example:
+> ```js
+> onFetchStart: function() {
+>   console.log("before data fetch");
+> }
+> ```
+
+- **onFetchEnd** (function)
+> Define a callback function when the fetch is complete. The function takes one
+> argument: the array of all posts returned by Ghost itself.
+> This allows you to manipulate the data before being stored. Any modification made
+> to `posts` will be kept.
+>
+> example:
+> ```js
+> onFetchEnd: function(posts) {
+>   console.log("all posts fetched");
+>   posts.forEach(function(item) {
+>       console.log("Post content:", item);
+>   });
+> }
+> ```
+
+- **onIndexBuildStart** (function)
+> Define a callback function before we start building the search index.
+> The function takes no argument.
+>
+> example:
+> ```js
+> onIndexBuildStart: function() {
+>   console.log("before building the index");
+> }
+> ```
+
+- **onIndexBuildEnd** (function)
+> Define a callback function when the search index build is complete.
+> The function takes no argument.
+>
+> example:
+> ```js
+> onIndexBuildEnd: function() {
+>   console.log("index build complete");
+> }
+> ```
+
+- **onSearchStart** (function)
+> Define a callback function before starting to execute the search query. For
+> instance, it could be used to hide the results `div` while waiting for the
+> `onSearchEnd` completion. But in most cases, this is not necessary because
+> the search function is really fast but it might be useful on a very large database.
+> The function takes no argument.
+>
+> example:
+> ```js
+> onSearchStart: function() {
+>   console.log("before executing the search query");
+> }
+> ```
+
+- **onSearchEnd** (function)
+> Define a callback function when the search results are ready.
+> The function takes 1 argument: the array of matching posts.
+>
+> example:
+> ```js
+> onSearchStart: function(posts) {
+>   console.log("before executing the search query");
+>   posts.forEach(function(item) {
+>        // ...
+>   });
+> }
+> ```
+
 - **debug** (boolean: false)
 > When something is not working as expected, set to `true`
 > to display application logs.
@@ -186,23 +269,23 @@ Here is the complete configuration used by default:
 This section describe how searchinGhost works from the inside. It will make the code logic
 clearer and hopefully motivate you to actually read it.
 
-TODO
+--> TODO before v1.0.0 release
 
 
 ## Known issues
 
-- [ ] Properly handle network errors
 - [x] Define a real logging strategy based on `debug: true`
+- [ ] Properly handle network errors
 
 
 ## Road map
 
 - [x] Set up a clean build process using Webpack
-- [ ] Ask someone to do a code review because I am not a Javascript dev 😅
 - [x] Allow user to fetch data when page loads (not only on focus)
+- [x] Add callbacks like `onFetchStart()`, `onSearchStart()`, ...
 - [ ] Maybe use the GhostContentApi library to fetch the content and give more flexibility to users (also support API v2?)
-- [ ] Add callback like `onInit()`, `onDataFetch()`, ...
 - [ ] Make the demo mobile-first, currently it looks ugly on small screens
+- [ ] Ask someone to do a code review because I am not a Javascript dev 😅
 
 
 ## Contribute
