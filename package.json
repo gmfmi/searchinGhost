@@ -1,8 +1,8 @@
 {
   "name": "searchinghost",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A pure javascript, lightweight & full-text search engine for Ghost (blog)",
-  "main": "dist/searchinghost.min.js",
+  "main": "src/searchinghost.js",
   "browser": "dist/searchinghost.min.js",
   "scripts": {
     "build": "webpack",
@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/gmfmi/searchinGhost#readme",
   "dependencies": {
+    "@tryghost/content-api": "^1.4.1",
     "flexsearch": "^0.6.32"
   },
   "devDependencies": {

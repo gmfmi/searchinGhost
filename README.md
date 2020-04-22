@@ -30,7 +30,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <div id="search-results"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.2.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.3.0/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -57,7 +57,7 @@ Download the `dist/searchinghost.min.js` file to your `js` theme folder and upda
 - **From a Content Delivery Network (CDN)**
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.2.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.3.0/dist/searchinghost.min.js"></script>
 <!-- Setting a version is prefered (but if you want to live bleeding edge...) -->
 <script src="https://cdn.jsdelivr.net/npm/searchinghost@latest/dist/searchinghost.min.js"></script>
 ```
@@ -91,76 +91,157 @@ var searchinGhost = new SearchinGhost({
 Here is the complete configuration used by default:
 
 ```js
-{
+var searchinGhost = new SearchinGhost({
     url: window.location.origin,
     key: '',
     version: 'v3',
+    loadOn: 'page',
     inputId: 'search-bar',
     outputId: 'search-results',
-    outputElementType: 'div',
+    postsFields: ['title', 'url', 'excerpt', 'custom_excerpt', 'published_at', 'feature_image'],
+    postsExtraFields: ['tags'],
+    postsFormats: ['plaintext'],
+    indexedFields: ['title', 'string_tags', 'excerpt', 'plaintext'],
+    resultElementType: 'div',
     template: function(post) {
-        var t = `<a href="${post.url}"><figure>`
-        if (post.feature_image) t += `<img src="${post.feature_image}">`
-        t += `</figure>
-        <section>
-            <header>#${post.tags} - ${post.published_at}</header>
-            <h2>${post.title}</h2>
-            <p>${post.excerpt}</p>
-        </section>
-        </a>`
-        return t;
+        var o = `<a href="${post.url}"><figure>`
+        if (post.feature_image) o += `<img src="${post.feature_image}">`
+        o += '</figure><section>'
+        if (post.tags.length > 0) {
+            o += `<header>#${post.tags[0].name} - ${post.published_at}</header>`
+        } else {
+            o += `<header>#UNKNOWN - ${post.published_at}</header>`
+        }
+        o += `<h2>${post.title}</h2><p>${post.excerpt}</p></section></a>`
+        return o;
+    },
+    emptyTemplate: function() {},
+    customProcessing: function(post) {
+        return post;
     },
     date: {
         locale: 'en-US',
         options: { year: 'numeric', month: 'short', day: 'numeric' }
     },
+    cacheMaxAge: 3600,
     onFetchStart: function() {},
     onFetchEnd: function(posts) {},
     onIndexBuildStart: function() {},
-    onIndexBuildEnd: function() {},
+    onIndexBuildEnd: function(index) {},
     onSearchStart: function() {},
     onSearchEnd: function(posts) {},
     debug: false
-}
+});
+```
+
+Let's say you want to keep it very simple. You only want to display the
+`title` and the associated `published_at` for each post found. You do not want
+to search through their content (only the titles). Then, you could
+use this kind of configuration:
+
+```js
+var searchinGhost = new SearchinGhost({
+    key: '<CONTENT_API_KEY>',
+    postsFields: ['title', 'url', 'published_at'],
+    postsExtraFields: [],
+    postsFormats: [],
+    indexedFields: ['title'],
+    template: function(post) {
+        return `<a href="${post.url}">${post.published_at} - ${post.title}</a>`
+    }
+});
 ```
 
 ## Options
 
-- **url** (string: window.location.origin)
+- **url** (string)
 > The full domaine name of the Ghost API.
 >
-> example: 'https://demo.ghost.io'
+> default: `window.location.origin`
+> example: `'https://demo.ghost.io'`
 
 - **key** (string, mandatory)
 > The public content API key to get access to the defined URL.
 >
-> example: '22444f78447824223cefc48062'
+> example: `'22444f78447824223cefc48062'`
 
-- **version** (string: 'v3')
-> Set the Ghost API version. For now, only the v3 is available.
+- **version** (string)
+> Set the Ghost API version.
+>
+> expected values: `'v2'` or `'v3'`
+> default: `'v3'`
 
-- **loadOn** (string: 'focus')
+- **loadOn** (string)
 > Set the library loading strategy. It can be triggered when the HTML page has loaded
 > or only on demand when the user click on the search bar.
-> values: `"focus"` or `"page"`
+>
+> expected values: `'page'` or `'focus'`
+> default: `'page'`
 
-- **inputId** (string: 'search-bar')
+- **inputId** (string)
 > The HTML `id` param defined on your input search bar.
 > Do not include '#' in the name.
 >
-> example: 'my-wonderful-search-bar-id'
+> default: `'search-bar'`
 
 - **outputId** (string: 'search-results')
 > The HTML `id` param defined on your output element. This element should be
 > empty in your template, it will be filled with the search results.
 >
-> example: 'put-the-results-here'
+> default: `'search-results'`
 
-- **outputElementType** (string: 'div')
-> By default, the output element is expected to be a `div` but you can
-> use whatever you want.
+- **postsFields** (array of strings)
+> An array of all desired posts fields. All these fields will become available
+> in the `template` function to display useful posts information.
 >
-> example: 'section'
+> Refer to the "fields" [official documentation](https://ghost.org/docs/api/v3/content/#fields).
+>
+> Note: if you use `'custom_excerpt'`, its content will automatically be put in `'excerpt'` to make
+> templating easier.
+>
+> default: `['title', 'url', 'excerpt', 'custom_excerpt', 'published_at', 'feature_image']`
+
+- **postsExtraFields** (array of strings)
+> This array allows you to use extra fields like `tags` or `authors`. I personnaly don't know
+> why they are not with the other "fields" but the Ghost API is designed this way...
+>
+> Set its value to `[]` (empty array) to completely disable it.
+>
+> Refer to the "include" [official documentation](https://ghost.org/docs/api/v3/content/#include).
+>
+> default: `['tags']`
+
+- **postsFormats** (array of strings)
+> This correspond to the "formats" Ghost API which allows use to fetch
+> the posts content with HTML or plain text.
+>
+> Set its value to `[]` (empty array) to completely disable it.
+>
+> Please refer to the "formats" [official documentation](https://ghost.org/docs/api/v3/content/#formats).
+>
+> default: `['plaintext']`
+
+- **indexedFields** (array of strings)
+> List of indexed fields. The content of all these fields will be searchable.
+>
+> All value in this list **must** be defined in the posts. Otherwise, the search
+> result won't be accurate but the app won't crash! Double check `postsFields`,
+> `postsExtraFields` and `postsFormats` values.
+>
+> **WARN**: node the `'string_tags'` weird field, this ugly thing is necessary because
+> FlexSearch cannot deal with array indexation for now. This field is the only
+> "magic word" you need to know! So if you use `'tags'` in `postsExtraFields`, please
+> use `'string_tags'` here in the mean time.
+>
+> default: `['title', 'string_tags', 'excerpt', 'plaintext']`
+
+- **resultElementType** (string)
+> Define the HTML type of each returned result. This element will be appended to
+> the parent element with the specified `outputId` ID.
+> By default, the result element type is a "div" but you can use whatever you want.
+> It must be a valid element known by the function `document.createElement()`.
+>
+> default: `'div'`
 
 - **template** (function)
 > Define your own result template. This template will be used for each post found to
@@ -169,18 +250,63 @@ Here is the complete configuration used by default:
 > Please note the use of **backticks** (e.g. '`') instead of single/double quotes. This
 > is required to allow javascript [variable interpolation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals).
 >
-> Available variables: `url`, `tags`, `published_at`, `feature_image`
+> The available variables are the ones defined in the `postsFields` option.
 >
 > example:
 > ```js
-> function (post) {
+> template: function (post) {
 >    return `<a href="${post.url}">#${post.tags} - ${post.published_at} - ${post.title}</a>`
 > }
 > ```
 
+- **emptyTemplate** (function)
+> Define your own result template when there is no result found.
+>
+> example:
+> ```js
+> emptyTemplate: function() {
+>   return '<p>Sorry, nothing found...</p>'
+> }
+> ```
+
+- **customProcessing** (function)
+> You need to do some extra modification on the posts data fetched from Ghost ?
+> Use this function to do whatever you need. This function is called on each post
+> and is executed after the `onFetchEnd()` and before the `onIndexBuildStart()`.
+>
+> To easily debug your inputs/outputs, use the `onFetchEnd()` and `onIndexBuildEnd()`
+> to display the result with a `console.log()`. If you are a more advanced user, the
+> best option is still to use the debugger. Also, do not forget to clean your local
+> cache when testing!
+>
+> example:
+> ```js
+> customProcessing: function(post) {
+>   post.extra_field = "hello";
+>   return post;
+> }
+> ```
+
 - **date** (object)
-> Define the date format fetched from posts. See the [MDN reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString#Using_options)
-> to get more information.
+> Define the date format fetched from posts.
+> See the [MDN reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString#Using_options) to get more information.
+>
+> example:
+> ```js
+> date: {
+>     locale: 'en-US',
+>     options: { year: 'numeric', month: 'short', day: 'numeric' }
+> }
+> ```
+
+- **cacheMaxAge** (number)
+> Set the cache maximum age in seconds. During this amont of time, if an already
+> existing index is found in the local storage, it will be loaded without any
+> additional HTTP request its validity. When the cache is purged, the value is reset.
+>
+> This is espacially useful to save the broadband and network loads of your server.
+>
+> default: `3600`
 
 - **onFetchStart** (function)
 > Define a callback function before we fetch the data from the Ghost API.
@@ -222,12 +348,12 @@ Here is the complete configuration used by default:
 
 - **onIndexBuildEnd** (function)
 > Define a callback function when the search index build is complete.
-> The function takes no argument.
+> The function takes one argument: the build FlexSearch index object.
 >
 > example:
 > ```js
-> onIndexBuildEnd: function() {
->   console.log("index build complete");
+> onIndexBuildEnd: function(index) {
+>   console.log("index built:", index);
 > }
 > ```
 
@@ -253,15 +379,15 @@ Here is the complete configuration used by default:
 > ```js
 > onSearchStart: function(posts) {
 >   console.log("before executing the search query");
->   posts.forEach(function(item) {
->        // ...
->   });
+>   posts.forEach(function(item) { ... });
 > }
 > ```
 
-- **debug** (boolean: false)
+- **debug** (boolean)
 > When something is not working as expected, set to `true`
 > to display application logs.
+>
+> default: `false`
 
 
 ## Internals
@@ -274,17 +400,23 @@ clearer and hopefully motivate you to actually read it.
 
 ## Known issues
 
-- [x] Define a real logging strategy based on `debug: true`
-- [ ] Properly handle network errors
+- [x] Properly handle network errors
+- [ ] What happens if no `localStorage` is available?
 
 
 ## Road map
 
+- [x] Use a logging strategy based on `debug: true`
 - [x] Set up a clean build process using Webpack
 - [x] Allow user to fetch data when page loads (not only on focus)
 - [x] Add callbacks like `onFetchStart()`, `onSearchStart()`, ...
-- [ ] Maybe use the GhostContentApi library to fetch the content and give more flexibility to users (also support API v2?)
+- [x] Use the GhostContentApi official library to give more configuation flexibility (and also support API v2)
+- [x] Expose cache max age option to users
+- [x] Add an optional empty template result
+- [x] Add a custom user-defined post reformat function called before indexation
+- [ ] Clean the code and comments
 - [ ] Make the demo mobile-first, currently it looks ugly on small screens
+- [ ] Get rid of the ugly 'string_tags'
 - [ ] Ask someone to do a code review because I am not a Javascript dev 😅
 
 
