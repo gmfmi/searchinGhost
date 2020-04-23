@@ -1,6 +1,5 @@
-[![](https://img.shields.io/npm/v/searchinghost?style=flat-square)](https://www.npmjs.com/package/searchinghost)
-[![](https://img.shields.io/bundlephobia/minzip/searchinghost?label=gzip%20size&style=flat-square)](https://bundlephobia.com/result?p=searchinghost)
-[![](https://img.shields.io/badge/ghost-%3E%3D%203.0-blue?style=flat-square)](https://ghost.org/)
+[![](https://flat.badgen.net/npm/v/searchinghost)](https://www.npmjs.com/package/searchinghost)
+[![](https://flat.badgen.net/bundlephobia/minzip/searchinghost?label=gzip%20size)](https://bundlephobia.com/result?p=searchinghost)
 [![](https://data.jsdelivr.com/v1/package/npm/searchinghost/badge)](https://www.jsdelivr.com/package/npm/searchinghost)
 
 
@@ -30,7 +29,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <div id="search-results"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.1/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -57,9 +56,9 @@ Download the `dist/searchinghost.min.js` file to your `js` theme folder and upda
 - **From a Content Delivery Network (CDN)**
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.1/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@0.4.0/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@0.4.1/dist/searchinghost.min.js"></script>
 ```
 
 - **From NPM**
@@ -154,6 +153,7 @@ var searchinGhost = new SearchinGhost({
 });
 ```
 
+
 ## Options
 
 - **url** (string)
@@ -168,9 +168,8 @@ var searchinGhost = new SearchinGhost({
 > example: `'22444f78447824223cefc48062'`
 
 - **version** (string)
-> Set the Ghost API version.
+> Set the Ghost API version. Work with both `'v2'` and `'v3'`.
 >
-> expected values: `'v2'` or `'v3'`
 > default: `'v3'`
 
 - **loadOn** (string)
@@ -423,6 +422,7 @@ clearer and hopefully motivate you to actually read it.
 
 - [x] Properly handle network errors
 - [x] Browser with disabled `localStorage` not supported yet
+- [x] Support both Ghost API v2 and v3
 
 
 ## Road map
@@ -443,9 +443,10 @@ clearer and hopefully motivate you to actually read it.
 
 ## Contribute
 
-Any contribution is more than welcome! If you found a bug feel free to post an issue or a PR.
+Any contribution is more than welcome! If you found a bug or would like to improve the code,
+please feel free to create an issue or a PR.
 
-Note that all the code update must be done under the `src` directory.
+All the code updates must be done under the `src` directory.
 
 To build the project by yourself, run:
 

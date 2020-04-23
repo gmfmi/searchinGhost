@@ -1,6 +1,6 @@
 {
   "name": "searchinghost",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A pure javascript, lightweight & in-browser full-text search plugin for Ghost (blog)",
   "main": "src/searchinghost.js",
   "browser": "dist/searchinghost.min.js",
@@ -15,8 +15,7 @@
   "keywords": [
     "ghost",
     "search",
-    "searching",
-    "searchinghost"
+    "plugin"
   ],
   "author": "Gm Fmi",
   "license": "MIT",
@@ -24,6 +23,13 @@
     "url": "https://github.com/gmfmi/searchinGhost/issues"
   },
   "homepage": "https://github.com/gmfmi/searchinGhost#readme",
+  "files": [
+    "README.md",
+    "LICENSE",
+    "src/searchinghost.js",
+    "dist/searchinghost.min.js",
+    "dist/searchinghost.min.js.map"
+  ],
   "dependencies": {
     "@tryghost/content-api": "^1.4.1",
     "flexsearch": "^0.6.32"
