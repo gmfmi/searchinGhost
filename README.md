@@ -29,7 +29,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <div id="search-results"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.1/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.2/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -56,9 +56,9 @@ Download the `dist/searchinghost.min.js` file to your `js` theme folder and upda
 - **From a Content Delivery Network (CDN)**
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.1/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.2/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@0.4.1/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@0.4.2/dist/searchinghost.min.js"></script>
 ```
 
 - **From NPM**
