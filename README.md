@@ -1,19 +1,19 @@
 [![](https://img.shields.io/npm/v/searchinghost?style=flat-square)](https://www.npmjs.com/package/searchinghost)
-![](https://img.shields.io/bundlephobia/minzip/searchinghost?label=gzip&style=flat-square)
+[![](https://img.shields.io/bundlephobia/minzip/searchinghost?label=gzip%20size&style=flat-square)](https://bundlephobia.com/result?p=searchinghost)
 [![](https://img.shields.io/badge/ghost-%3E%3D%203.0-blue?style=flat-square)](https://ghost.org/)
 [![](https://data.jsdelivr.com/v1/package/npm/searchinghost/badge)](https://www.jsdelivr.com/package/npm/searchinghost)
 
 
 # SeachinGhost
 
-A pure javascript, lightweight & full-text search engine for [Ghost](https://ghost.org/) (blog)
+A pure javascript, lightweight & in-browser full-text search plugin for [Ghost](https://ghost.org/) (blog)
 
 
 ## Description
 
-SearchinGhost is a lightweight search engine dedicated to the Ghost blogging platform. In its core, it uses
-the [Ghost Content API](https://ghost.org/docs/api/v3/content/) to load your blog content and the powerful
-[FlexSearch](https://github.com/nextapps-de/flexsearch) library to index and run search queries.
+SearchinGhost is a lightweight and extensible search engine dedicated to the Ghost blogging platform. In its core, it uses
+the [Ghost Content API](https://ghost.org/docs/api/v3/javascript/content/) to load your blog content and the powerful
+[FlexSearch](https://github.com/nextapps-de/flexsearch) library to index and execute search queries.
 
 Everything happens in the client browser, it helps us to deliver blazing fast search results and displays them
 in real-time to your users (a.k.a "search-as-you-type"). We also take care about minimizing network loads by
@@ -30,7 +30,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <div id="search-results"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.3.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.0/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -57,9 +57,9 @@ Download the `dist/searchinghost.min.js` file to your `js` theme folder and upda
 - **From a Content Delivery Network (CDN)**
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.3.0/dist/searchinghost.min.js"></script>
-<!-- Setting a version is prefered (but if you want to live bleeding edge...) -->
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@latest/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.0/dist/searchinghost.min.js"></script>
+<!-- OR -->
+<script src="https://unpkg.com/searchinghost@0.4.0/dist/searchinghost.min.js"></script>
 ```
 
 - **From NPM**
@@ -96,6 +96,7 @@ var searchinGhost = new SearchinGhost({
     key: '',
     version: 'v3',
     loadOn: 'page',
+    searchOn: 'keyUp',
     inputId: 'search-bar',
     outputId: 'search-results',
     postsFields: ['title', 'url', 'excerpt', 'custom_excerpt', 'published_at', 'feature_image'],
@@ -117,6 +118,7 @@ var searchinGhost = new SearchinGhost({
     },
     emptyTemplate: function() {},
     customProcessing: function(post) {
+        if (post.tags) post.string_tags = post.tags.map(o => o.name).join(' ').toLowerCase();
         return post;
     },
     date: {
@@ -172,11 +174,26 @@ var searchinGhost = new SearchinGhost({
 > default: `'v3'`
 
 - **loadOn** (string)
-> Set the library loading strategy. It can be triggered when the HTML page has loaded
-> or only on demand when the user click on the search bar.
+> Set the library loading strategy. It can be triggered when the HTML page has
+> been loaded, on demand when the user click on the search bar or never.
 >
-> expected values: `'page'` or `'focus'`
+> The `'none'` value is only useful if you want to trigger the search bar init
+> by yourself. This way, your can call `searchinGhost.loadResources()` when
+> the rest of your code is ready.
+>
+> expected values: `'page'`, `'focus'` or `'none'`
 > default: `'page'`
+
+- **searchOn** (string)
+> Choose when the search query should be executed. To search at each
+> user key stroke, use `'keyUp'`. To search when the user send the
+> form via a button or entering the 'enter' key, use `'submit'`. If
+> you want to have a complete control of it from your own javascript
+> code, use `'none'` and execute the search by yourself using
+> `searchinGhost.search(<your_query>)`.
+>
+> expected values: `'keyUp'`, `'submit'` or `'none'`
+> default: `'keyUp'`
 
 - **inputId** (string)
 > The HTML `id` param defined on your input search bar.
@@ -228,10 +245,11 @@ var searchinGhost = new SearchinGhost({
 > result won't be accurate but the app won't crash! Double check `postsFields`,
 > `postsExtraFields` and `postsFormats` values.
 >
-> **WARN**: node the `'string_tags'` weird field, this ugly thing is necessary because
-> FlexSearch cannot deal with array indexation for now. This field is the only
-> "magic word" you need to know! So if you use `'tags'` in `postsExtraFields`, please
-> use `'string_tags'` here in the mean time.
+> *NOTE*: the `'string_tags'` weird field is added in the `customProcessing` option.
+> If you want to use tags, this ugly thing is necessary (for now) because FlexSearch
+> cannot properly handle arrays. If you do not want/like it, override the `customProcessing`
+> to only return `posts` without additionnal modification. If you decide to use tags,
+> please also use `'string_tags'` here.
 >
 > default: `['title', 'string_tags', 'excerpt', 'plaintext']`
 
@@ -278,6 +296,9 @@ var searchinGhost = new SearchinGhost({
 > to display the result with a `console.log()`. If you are a more advanced user, the
 > best option is still to use the debugger. Also, do not forget to clean your local
 > cache when testing!
+>
+> *note*: by default, this option is already fields with a helper function to make it
+> easier to use the field "tags" in posts. See the `indexedFields` options.
 >
 > example:
 > ```js
@@ -401,7 +422,7 @@ clearer and hopefully motivate you to actually read it.
 ## Known issues
 
 - [x] Properly handle network errors
-- [ ] What happens if no `localStorage` is available?
+- [x] Browser with disabled `localStorage` not supported yet
 
 
 ## Road map
@@ -414,9 +435,9 @@ clearer and hopefully motivate you to actually read it.
 - [x] Expose cache max age option to users
 - [x] Add an optional empty template result
 - [x] Add a custom user-defined post reformat function called before indexation
-- [ ] Clean the code and comments
+- [x] Expose 'searchOn' and 'loadOn' in the configuration
+- [x] Clean the code and comments
 - [ ] Make the demo mobile-first, currently it looks ugly on small screens
-- [ ] Get rid of the ugly 'string_tags'
 - [ ] Ask someone to do a code review because I am not a Javascript dev 😅
 
 

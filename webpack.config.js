@@ -4,7 +4,7 @@ const package = require('./package.json');
 
 module.exports = {
     mode: 'production',
-    devtool: 'source-map',
+    devtool: 'hidden-source-map',
     entry: {
         searchinghost: './src/searchinghost.js'
     },
