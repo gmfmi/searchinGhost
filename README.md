@@ -29,7 +29,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <div id="search-results"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.2/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.5.0/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -56,9 +56,9 @@ Download the `dist/searchinghost.min.js` file to your `js` theme folder and upda
 - **From a Content Delivery Network (CDN)**
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.2/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.5.0/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@0.4.2/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@0.5.0/dist/searchinghost.min.js"></script>
 ```
 
 - **From NPM**
@@ -94,25 +94,33 @@ var searchinGhost = new SearchinGhost({
     url: window.location.origin,
     key: '',
     version: 'v3',
-    loadOn: 'page',
-    searchOn: 'keyUp',
+    loadOn: 'focus',
+    searchOn: 'keyup',
+    limit: 10,
     inputId: 'search-bar',
     outputId: 'search-results',
+    outputChildsType: 'div',
     postsFields: ['title', 'url', 'excerpt', 'custom_excerpt', 'published_at', 'feature_image'],
     postsExtraFields: ['tags'],
     postsFormats: ['plaintext'],
     indexedFields: ['title', 'string_tags', 'excerpt', 'plaintext'],
-    resultElementType: 'div',
     template: function(post) {
-        var o = `<a href="${post.url}"><figure>`
+        var o = `<a href="${post.url}">`
         if (post.feature_image) o += `<img src="${post.feature_image}">`
-        o += '</figure><section>'
+        o += '<section>'
         if (post.tags.length > 0) {
-            o += `<header>#${post.tags[0].name} - ${post.published_at}</header>`
+            o += `<header>
+                    <span class="head-tags">${post.tags[0].name}</span>
+                    <span class="head-date">${post.published_at}</span>
+                  </header>`
         } else {
-            o += `<header>#UNKNOWN - ${post.published_at}</header>`
+            o += `<header>
+                    <span class="head-tags">UNKNOWN</span>
+                    <span class="head-date">${post.published_at}</span>
+                  </header>`
         }
-        o += `<h2>${post.title}</h2><p>${post.excerpt}</p></section></a>`
+        o += `<h2>${post.title}</h2>`
+        o += `</section></a>`
         return o;
     },
     emptyTemplate: function() {},
@@ -160,6 +168,7 @@ var searchinGhost = new SearchinGhost({
 > The full domaine name of the Ghost API.
 >
 > default: `window.location.origin`
+>
 > example: `'https://demo.ghost.io'`
 
 - **key** (string, mandatory)
@@ -181,18 +190,28 @@ var searchinGhost = new SearchinGhost({
 > the rest of your code is ready.
 >
 > expected values: `'page'`, `'focus'` or `'none'`
-> default: `'page'`
+>
+> default: `'focus'`
 
 - **searchOn** (string)
 > Choose when the search query should be executed. To search at each
-> user key stroke, use `'keyUp'`. To search when the user send the
+> user key stroke and form submit, use `'keyup'`. To search only when the user submit the
 > form via a button or entering the 'enter' key, use `'submit'`. If
 > you want to have a complete control of it from your own javascript
 > code, use `'none'` and execute the search by yourself using
-> `searchinGhost.search(<your_query>)`.
+> `searchinGhost.search("...")`.
 >
-> expected values: `'keyUp'`, `'submit'` or `'none'`
-> default: `'keyUp'`
+> expected values: `'keyup'`, `'submit'` or `'none'`
+>
+> default: `'keyup'`
+
+- **limit** (number)
+> Set the maximum number of posts returned by a search query. Any value between `1`
+> and `50` will be lightning-fast and a values lower than `1000` should not
+> degrade performance too much. But remember, when the search engine hits this limit
+> it stops digging and return the results: the lower, the better.
+>
+> default: `10`
 
 - **inputId** (string)
 > The HTML `id` param defined on your input search bar.
@@ -252,20 +271,26 @@ var searchinGhost = new SearchinGhost({
 >
 > default: `['title', 'string_tags', 'excerpt', 'plaintext']`
 
-- **resultElementType** (string)
+- **outputChildsType** (string)
 > Define the HTML type of each returned result. This element will be appended to
-> the parent element with the specified `outputId` ID.
-> By default, the result element type is a "div" but you can use whatever you want.
+> the `outputId` parent element.
+> By default, the result element type is a `div` but you can use whatever you want.
 > It must be a valid element known by the function `document.createElement()`.
 >
 > default: `'div'`
 
 - **template** (function)
 > Define your own result template. This template will be used for each post found to
-> generate the result and appended as child element to the output element.
+> generate the result and appended as child element to the output element. There is
+> no templating engine, just a native javascript function using a `post` object as argument.
+>
+> This template option is lot more powerful than you might expect. We can also think of
+> it as a custom processing function called on the search results. For example, if
+> you want to do some filtering, return nothing (e.g. `return;`) or an empty string
+> (e.g. `return "";`) to discard an item.
 >
 > Please note the use of **backticks** (e.g. '`') instead of single/double quotes. This
-> is required to allow javascript [variable interpolation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals).
+> is required to enable the very useful javascript [variable interpolation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals).
 >
 > The available variables are the ones defined in the `postsFields` option.
 >
@@ -314,7 +339,7 @@ var searchinGhost = new SearchinGhost({
 > example:
 > ```js
 > date: {
->     locale: 'en-US',
+>     locale: 'fr-FR',
 >     options: { year: 'numeric', month: 'short', day: 'numeric' }
 > }
 > ```
@@ -437,8 +462,8 @@ clearer and hopefully motivate you to actually read it.
 - [x] Add a custom user-defined post reformat function called before indexation
 - [x] Expose 'searchOn' and 'loadOn' in the configuration
 - [x] Clean the code and comments
-- [ ] Make the demo mobile-first, currently it looks ugly on small screens
-- [ ] Ask someone to do a code review because I am not a Javascript dev 😅
+- [x] Make the demo mobile-friendly, it currently looks ugly on small screens
+- [ ] A code review
 
 
 ## Contribute
@@ -471,7 +496,7 @@ them a try to see if they better fit your needs:
 > - Probably the most famous
 > - The most complete solution out there
 > - A powerful cache system based on localStorage
-> - Full text indexation (not only post titles)
+> - Full text indexation (not only posts title)
 >
 > cons:
 > - Rely on jQuery

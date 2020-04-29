@@ -8,28 +8,98 @@
 </head>
 <body>
 
-    <div class="search-wrapper">
-        <h1 class="search-header">Try SearchinGhost, type anything</h1>
-        <div class="search-bar-wrapper">
-            <span class="search-icon">
-                <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
-            </span>
-            <form autocomplete="off">
-                <input id="search-bar" type="text" placeholder="type to search...">
-            </form>
-        </div>
-        <section id="search-results"></section>
+    <div class="main">
+        <a id="open-searchbox" href="#">Click to open the search box</a>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/searchinghost@0.4.2/dist/searchinghost.min.js"></script>
+    <!-- Overlay start -->
+    <div id="search-overlay" role="dialog">
+        <i id="search-close-btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M284.286,256.002L506.143,34.144c7.811-7.811,7.811-20.475,0-28.285c-7.811-7.81-20.475-7.811-28.285,0L256,227.717
+			L34.143,5.859c-7.811-7.811-20.475-7.811-28.285,0c-7.81,7.811-7.811,20.475,0,28.285l221.857,221.857L5.858,477.859
+			c-7.811,7.811-7.811,20.475,0,28.285c3.905,3.905,9.024,5.857,14.143,5.857c5.119,0,10.237-1.952,14.143-5.857L256,284.287
+			l221.857,221.857c3.905,3.905,9.024,5.857,14.143,5.857s10.237-1.952,14.143-5.857c7.811-7.811,7.811-20.475,0-28.285
+			L284.286,256.002z"/></svg></i>
+        <div class="search-bar-container">
+            <section class="search-bar-wrapper">
+                <form class="search-form" autocomplete="off">
+                    <input id="search-bar" type="text" placeholder="Search">
+                    <button type="submit" class="search-button"><svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M508.875,493.792L353.089,338.005c32.358-35.927,52.245-83.296,52.245-135.339C405.333,90.917,314.417,0,202.667,0 S0,90.917,0,202.667s90.917,202.667,202.667,202.667c52.043,0,99.411-19.887,135.339-52.245l155.786,155.786 c2.083,2.083,4.813,3.125,7.542,3.125c2.729,0,5.458-1.042,7.542-3.125C513.042,504.708,513.042,497.958,508.875,493.792z M202.667,384c-99.979,0-181.333-81.344-181.333-181.333S102.688,21.333,202.667,21.333S384,102.677,384,202.667 S302.646,384,202.667,384z"/></svg></button>
+                </form>
+                <p id="search-bar-items-found"></p>
+            </section>
+        </div>
+        <div class="search-results-container">
+            <section id="search-results"></section>
+        </div>
+    </div>
+    <!-- Overlay end -->
+
+    <script src="https://cdn.jsdelivr.net/npm/searchinghost@0.5.0/dist/searchinghost.min.js"></script>
     <!-- <script src="../dist/searchinghost.min.js"></script> -->
+
     <script>
-        // Example API based on Ghost Casper demo website
+
         var searchinGhost = new SearchinGhost({
+            // Example API using Ghost demo website
             key: '22444f78447824223cefc48062',
             url: 'https://demo.ghost.io',
-            debug: true
+            debug: true,
+            searchOn: 'keyup',
+            loadOn: 'page',
+            limit: 12,
+            // cacheMaxAge: 0,
+            // onIndexBuildEnd: function() {
+            //     var searchBar = document.getElementById('search-bar');
+            //     searchBar.value = "test";
+            //     searchinGhost.search('test');
+            // },
+            onSearchEnd: function(posts) {
+                var nb = posts.length;
+                var foundElement = document.getElementById('search-bar-items-found');
+                if (nb <= 1) {
+                    foundElement.textContent = `${posts.length} post found`;
+                } else {
+                    foundElement.textContent = `${posts.length} posts found`;
+                }
+            }
         });
+
+    </script>
+    <script>
+
+        /**
+         * Overlay open/close event listeners
+        */
+        var searchOpenLink = document.getElementById('open-searchbox');
+        var searchOverlay = document.getElementById('search-overlay');
+        var searchBar = document.getElementById('search-bar');
+        var closeButton = document.getElementById('search-close-btn');
+
+        searchOpenLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            openOverlay();
+        });
+
+        document.addEventListener('keyup', function(e) {
+            if (e.key === "Escape" || e.keyCode === 27) {
+                closeOverlay();
+            }
+        });
+        closeButton.addEventListener('click', closeOverlay);
+
+        function closeOverlay() {
+            document.body.removeAttribute("style");
+            searchOverlay.style.display = "none";
+        }
+
+        function openOverlay() {
+            searchOverlay.style.display = "block";
+            document.body.style.overflow = 'hidden';
+            searchBar.focus();
+        }
+
+        openOverlay();
+
     </script>
 </body>
 </html>

@@ -8,25 +8,33 @@ export default class SearchinGhost {
             url: window.location.origin,
             key: '',
             version: 'v3',
-            loadOn: 'page',
-            searchOn: 'keyUp',
+            loadOn: 'focus',
+            searchOn: 'keyup',
+            limit: 10,
             inputId: 'search-bar',
             outputId: 'search-results',
+            outputChildsType: 'div',
             postsFields: ['title', 'url', 'excerpt', 'custom_excerpt', 'published_at', 'feature_image'],
             postsExtraFields: ['tags'],
             postsFormats: ['plaintext'],
             indexedFields: ['title', 'string_tags', 'excerpt', 'plaintext'],
-            resultElementType: 'div',
             template: function(post) {
-                var o = `<a href="${post.url}"><figure>`
+                var o = `<a href="${post.url}">`
                 if (post.feature_image) o += `<img src="${post.feature_image}">`
-                o += '</figure><section>'
+                o += '<section>'
                 if (post.tags.length > 0) {
-                    o += `<header>#${post.tags[0].name} - ${post.published_at}</header>`
+                    o += `<header>
+                            <span class="head-tags">${post.tags[0].name}</span>
+                            <span class="head-date">${post.published_at}</span>
+                          </header>`
                 } else {
-                    o += `<header>#UNKNOWN - ${post.published_at}</header>`
+                    o += `<header>
+                            <span class="head-tags">UNKNOWN</span>
+                            <span class="head-date">${post.published_at}</span>
+                          </header>`
                 }
-                o += `<h2>${post.title}</h2><p>${post.excerpt}</p></section></a>`
+                o += `<h2>${post.title}</h2>`
+                o += `</section></a>`
                 return o;
             },
             emptyTemplate: function() {},
@@ -80,10 +88,10 @@ export default class SearchinGhost {
             version: this.config.version
         });
 
-        this.index = this.initSearchIndex();
+        this.index = this.getNewSearchIndex();
     }
 
-    initSearchIndex() {
+    getNewSearchIndex() {
         return new FlexSearch({
             "doc": {
                 "id": "id",
@@ -99,10 +107,17 @@ export default class SearchinGhost {
 
     setEventListners() {
         let searchForm = this.searchBar.closest('form');
-        if (searchForm) searchForm.addEventListener("submit", (e) => { e.preventDefault(); });
+        if (searchForm) {
+            searchForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                if (!this.dataLoaded) this.loadResources();
+                let query = this.searchBar.value.toLowerCase();
+                this.search(query);
+            });
+        }
 
         switch(this.config.searchOn) {
-        case 'keyUp':
+        case 'keyup':
             this.searchBar.addEventListener("keyup", () => {
                 if (!this.dataLoaded) this.loadResources();
                 let query = this.searchBar.value.toLowerCase();
@@ -110,18 +125,15 @@ export default class SearchinGhost {
             });
             break;
         case 'submit':
-            if (searchForm) {
-                searchForm.addEventListener("submit", () => {
-                    if (!this.dataLoaded) this.loadResources();
-                    let query = this.searchBar.value.toLowerCase();
-                    this.search(query);
-                });
-            } else {
+            if (!searchForm) {
                 throw `No form associated with the input ID #${this.config.inputId}, unable to start SearchinGhost`;
             }
             break;
+        case 'none':
+            // do nothing
+            break;
         default:
-            // 'none' case, do nothing
+            throw `Unknown "searchOn" option: '${this.config.searchOn}'`
         }
     }
 
@@ -139,8 +151,11 @@ export default class SearchinGhost {
                 this.loadResources();
             });
             break;
+        case 'page':
+            // do nothing
+            break;
         default:
-            // 'none' case, do nothing
+            throw `Unknown "loadOn" option: '${this.config.loadOn}'`
         }
     }
 
@@ -221,7 +236,7 @@ export default class SearchinGhost {
                 this.config.onFetchEnd(posts);
                 this.config.onIndexBuildStart();
                 let updatedAt = posts[0].updated_at;
-                this.initSearchIndex();
+                this.index = this.getNewSearchIndex();
                 posts.forEach((post) => {
                     let formattedPost = this.format(post);
                     this.index.add(formattedPost);
@@ -272,7 +287,7 @@ export default class SearchinGhost {
         this.config.onSearchStart();
 
         let postsFound = this.index.search(query, {
-            limit: 7
+            limit: this.config.limit
         });
 
         this.display(postsFound);
@@ -282,7 +297,7 @@ export default class SearchinGhost {
 
     display(posts) {
         let resultParentElement = document.getElementById(this.config.outputId);
-        resultParentElement.innerHTML = "";
+        resultParentElement.innerHTML = '';
 
         if (posts.length < 1) {
             let resultElement = this.evaluateTemplate(this.config.emptyTemplate, null);
@@ -311,7 +326,7 @@ export default class SearchinGhost {
             window.localStorage.setItem('test', '');
             window.localStorage.removeItem('test');
             return window.localStorage;
-        } catch (e) {
+        } catch(e) {
             return undefined;
         }
     }
