@@ -30,7 +30,7 @@ html, body {
     --medium-grey: #868b8f;
     --heavy-grey: #3f3f3f;
     --background-alt: #fff;
-    --background-main: rgba(252, 252, 252, 0.95);
+    --background-main: #fafafa;
     --borders: #f0f0f0;
 }
 
@@ -44,6 +44,7 @@ html, body {
     bottom: 0;
     overflow-x: hidden;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* iOS smooth scrool */
     background-color: var(--background-main);
     font-size: 1rem;
 }

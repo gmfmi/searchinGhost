@@ -490,7 +490,7 @@ Here is a short list of other related projects. You should definitely give
 them a try to see if they better fit your needs:
 
 
-[Ghost Hunter](https://github.com/jamalneufeld/ghostHunter) (101 kB, 26 kB gzip)
+[Ghost Hunter](https://github.com/jamalneufeld/ghostHunter) (v0.6.0, 101 kB, 26 kB gzip)
 
 > pros:
 > - Probably the most famous
@@ -504,7 +504,7 @@ them a try to see if they better fit your needs:
 > - The source code became messy over time
 
 
-[Ghost search](https://github.com/HauntedThemes/ghost-search) (12 kB, 4.2 kB gzip)
+[Ghost search](https://github.com/HauntedThemes/ghost-search) (v1.1.0, 12 kB, 4.2 kB gzip)
 
 > pros:
 > - Well writen and easy-to-read code base
@@ -516,7 +516,7 @@ them a try to see if they better fit your needs:
 > - Do not use a scoring system to display the best results first
 
  
-[Ghost finder](https://github.com/electronthemes/ghost-finder) (827 kB, 159 kB gzip)
+[Ghost finder](https://github.com/electronthemes/ghost-finder) (v3.0.1, 827 kB, 159 kB gzip)
 
 > pros:
 > - Pure Javascript library
