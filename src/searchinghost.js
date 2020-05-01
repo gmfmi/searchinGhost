@@ -13,7 +13,7 @@ export default class SearchinGhost {
             limit: 10,
             inputId: 'search-bar',
             outputId: 'search-results',
-            outputChildsType: 'div',
+            outputChildsType: 'li',
             postsFields: ['title', 'url', 'excerpt', 'custom_excerpt', 'published_at', 'feature_image'],
             postsExtraFields: ['tags'],
             postsFormats: ['plaintext'],
@@ -315,7 +315,7 @@ export default class SearchinGhost {
         let generatedTemplate = template(optionalPost);
         if (!generatedTemplate) return;
 
-        let newElement = document.createElement(this.config.resultElementType);
+        let newElement = document.createElement(this.config.outputChildsType);
         newElement.classList.add(`${this.config.outputId}-item`);
         newElement.innerHTML = generatedTemplate;
         return newElement;

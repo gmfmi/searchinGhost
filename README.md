@@ -29,7 +29,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <div id="search-results"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.5.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.5.1/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -56,9 +56,9 @@ Download the `dist/searchinghost.min.js` file to your `js` theme folder and upda
 - **From a Content Delivery Network (CDN)**
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.5.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@0.5.1/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@0.5.0/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@0.5.1/dist/searchinghost.min.js"></script>
 ```
 
 - **From NPM**
@@ -225,6 +225,14 @@ var searchinGhost = new SearchinGhost({
 >
 > default: `'search-results'`
 
+- **outputChildsType** (string)
+> Define the HTML type of each returned result. This element will be appended to
+> the `outputId` parent element.
+> By default, the result element type is a `li` but you can use whatever you want.
+> It must be a valid element known by the function `document.createElement()`.
+>
+> default: `'li'`
+
 - **postsFields** (array of strings)
 > An array of all desired posts fields. All these fields will become available
 > in the `template` function to display useful posts information.
@@ -270,14 +278,6 @@ var searchinGhost = new SearchinGhost({
 > please also use `'string_tags'` here.
 >
 > default: `['title', 'string_tags', 'excerpt', 'plaintext']`
-
-- **outputChildsType** (string)
-> Define the HTML type of each returned result. This element will be appended to
-> the `outputId` parent element.
-> By default, the result element type is a `div` but you can use whatever you want.
-> It must be a valid element known by the function `document.createElement()`.
->
-> default: `'div'`
 
 - **template** (function)
 > Define your own result template. This template will be used for each post found to
