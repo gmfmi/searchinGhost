@@ -1,6 +1,6 @@
 {
   "name": "searchinghost",
-  "version": "0.5.1",
+  "version": "1.0.0",
   "description": "A pure javascript, lightweight & in-browser full-text search plugin for Ghost (blog)",
   "main": "src/searchinghost.js",
   "browser": "dist/searchinghost.min.js",
@@ -26,6 +26,7 @@
   "files": [
     "README.md",
     "LICENSE",
+    "CHANGELOG.md",
     "src/searchinghost.js",
     "dist/searchinghost.min.js",
     "dist/searchinghost.min.js.map"
