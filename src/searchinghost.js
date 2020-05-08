@@ -46,7 +46,7 @@ export default class SearchinGhost {
                 locale: 'en-US',
                 options: { year: 'numeric', month: 'short', day: 'numeric' }
             },
-            cacheMaxAge: 3600,
+            cacheMaxAge: 1800,
             onFetchStart: function() {},
             onFetchEnd: function(posts) {},
             onIndexBuildStart: function() {},
@@ -141,17 +141,15 @@ export default class SearchinGhost {
         switch(this.config.loadOn) {
         case 'focus':
             this.searchBar.addEventListener('focus', () => {
-                if (!this.dataLoaded) {
-                    this.loadResources();
-                }
+                if (!this.dataLoaded) this.loadResources();
             });
             break;
         case 'page':
             window.addEventListener('load', () => {
-                this.loadResources();
+                if (!this.dataLoaded) this.loadResources();
             });
             break;
-        case 'page':
+        case 'none':
             // do nothing
             break;
         default:
@@ -206,7 +204,7 @@ export default class SearchinGhost {
                 let storedUpdateTimestamp = this.storage.getItem("SearchinGhost_updatedat");
                 let latestPostUpdateTimestamp = posts[0].updated_at;
                 if (latestPostUpdateTimestamp !== storedUpdateTimestamp) {
-                    this.log("Local cache not up to date, purge it");
+                    this.log("Local cache outdated, purge it");
                     this.fetch();
                 } else {
                     this.log("Local cached data up to date");
@@ -218,7 +216,7 @@ export default class SearchinGhost {
     }
 
     fetch() {
-        this.log("Start fetching data from Ghost API");
+        this.log("Fetching data from Ghost API");
         this.config.onFetchStart();
 
         let browseOptions = {
@@ -326,7 +324,7 @@ export default class SearchinGhost {
             window.localStorage.setItem('test', '');
             window.localStorage.removeItem('test');
             return window.localStorage;
-        } catch(e) {
+        } catch(err) {
             return undefined;
         }
     }

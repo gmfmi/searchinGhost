@@ -16,18 +16,26 @@ the [Ghost Content API](https://ghost.org/docs/api/v3/javascript/content/) to lo
 
 Everything happens in the client browser, it helps us to deliver blazing fast search results and displays them
 in real-time to your users (a.k.a "search-as-you-type"). We also take care about minimizing network loads by
-relying on the browser `localStorage` only sending request when necessary.
+relying on the browser `localStorage` only sending requests when necessary.
 
-Try it by yourself with this [Live Demo](https://gmfmi.github.io/searchinGhost/) (data fetched from the offical Ghost demo).
+
+## Demo
+
+Before diving into installation and configuration, give it a try by yourself with this **[Live Demo](https://gmfmi.github.io/searchinGhost/)**.
+
+On this demo, the searchable content comes from the official Ghost demo API (i.e. https://demo.ghost.io).
+Options are set to default so each input word is searched into posts title, tags, excerpt and main content.
+
+For example, search the word "marmalade". It does not exist in any post title, exerpt or tag but it is used one time in the "Down The Rabbit Hole" article, that why you will get it as a result.
 
 
 ## Quick Start
 
-First, update the `default.hbs` file of your theme to include an input field and a div element to display the search results. Then, add a link to searchinGhost and initialize it with your own `CONTENT_API_KEY`. To get the content API key, please refer to the official [Ghost documentation](https://ghost.org/docs/api/v3/content/#key).
+First, update the `default.hbs` file of your theme to include an input field and an output element to display the search results. Then, add a link to SearchinGhost script and initialize it with your own `CONTENT_API_KEY`. To get the content API key, please refer to the official [Ghost documentation](https://ghost.org/docs/api/v3/content/#key).
 
 ```html
 <input id="search-bar">
-<div id="search-results"></div>
+<ul id="search-results"></ul>
 
 <script src="https://cdn.jsdelivr.net/npm/searchinghost@0.5.1/dist/searchinghost.min.js"></script>
 <script>
@@ -37,23 +45,18 @@ First, update the `default.hbs` file of your theme to include an input field and
 </script>
 ```
 
-That's it, everything is done!
-If you need a more fine-grained configuration to better fit your needs, please read the next sections.
+That's it, everything is done! If you need a more fine-grained configuration, please read the next sections.
 
 
 ## Installation
 
-You can install searchinGhost using various methods, here are the possibilities:
+You can install SearchinGhost using various methods, here are the possibilities:
 
-- **From source**
+1. **From a Content Delivery Network (CDN)**
 
-Download the `dist/searchinghost.min.js` file to your `js` theme folder and update your template with:
-
-```html
-<script src="{{asset 'js/searchinghost.min.js'}}"></script>
-```
-
-- **From a Content Delivery Network (CDN)**
+This is the easiest and prefered method to install SearchinGhost. Add one of these scripts
+into your theme `default.hbs`. We also recommand the use of jsdelivr over unpkg for its
+reliability and performance.
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/searchinghost@0.5.1/dist/searchinghost.min.js"></script>
@@ -61,11 +64,21 @@ Download the `dist/searchinghost.min.js` file to your `js` theme folder and upda
 <script src="https://unpkg.com/searchinghost@0.5.1/dist/searchinghost.min.js"></script>
 ```
 
-- **From NPM**
+2. **From source**
+
+If you want to serve SearchinGhost from your own server or include it in your build process,
+you can get it from the [release page](https://github.com/gmfmi/searchinGhost/releases) assets or
+download the `dist/searchinghost.min.js` file.
+
+3. **From NPM**
+
+Install SearchinGhost as a project dependency.
 
 ```sh
 $ npm install searchinghost
 ```
+
+Then, load it from any Javascript file.
 
 ```js
 import SearchinGhost from 'searchinghost';
@@ -76,9 +89,11 @@ var SearchinGhost = require('searchinghost');
 
 ## Configuration
 
-When using searchinGhost, the only mandatory configuration field is `key`.
-Any other field get a default value and is optional. Nevertheless,
-a little bit of configuration could be worth it!
+The only mandatory configuration field is `key`. Any other field has a default value and became optional.
+
+SearchinGhost has been designed to work out of the box, this minimal configuration is yet powerful! At
+each key stroke, it will search into posts title, tags, excerpt and content. This is the default behaviour
+as it seems to be the most common.
 
 ```js
 // SearchinGhost minimal configuration
@@ -87,19 +102,42 @@ var searchinGhost = new SearchinGhost({
 });
 ```
 
-Here is the complete configuration used by default:
+Nevertheless, a little bit of extra configuration could be worth it to fit your needs.
+Let's say you only want search into the `title` and display the `title` and `published_at`
+fields for each post found. You could use this configuration:
 
 ```js
 var searchinGhost = new SearchinGhost({
-    url: window.location.origin,
+    key: '<CONTENT_API_KEY>',
+    postsFields: ['title', 'url', 'published_at'],
+    postsExtraFields: [],
+    postsFormats: [],
+    indexedFields: ['title'],
+    template: function(post) {
+        return `<a href="${post.url}">${post.published_at} - ${post.title}</a>`
+    }
+});
+```
+
+SearchinGhost is easily customizable and extensible through its configuration, take your
+time to look into each option from the next section.
+
+
+## Options
+
+### The complete default configuration
+
+```js
+{
     key: '',
+    url: window.location.origin,
     version: 'v3',
     loadOn: 'focus',
     searchOn: 'keyup',
     limit: 10,
     inputId: 'search-bar',
     outputId: 'search-results',
-    outputChildsType: 'div',
+    outputChildsType: 'li',
     postsFields: ['title', 'url', 'excerpt', 'custom_excerpt', 'published_at', 'feature_image'],
     postsExtraFields: ['tags'],
     postsFormats: ['plaintext'],
@@ -132,7 +170,7 @@ var searchinGhost = new SearchinGhost({
         locale: 'en-US',
         options: { year: 'numeric', month: 'short', day: 'numeric' }
     },
-    cacheMaxAge: 3600,
+    cacheMaxAge: 1800,
     onFetchStart: function() {},
     onFetchEnd: function(posts) {},
     onIndexBuildStart: function() {},
@@ -143,26 +181,13 @@ var searchinGhost = new SearchinGhost({
 });
 ```
 
-Let's say you want to keep it very simple. You only want to display the
-`title` and the associated `published_at` for each post found. You do not want
-to search through their content (only the titles). Then, you could
-use this kind of configuration:
 
-```js
-var searchinGhost = new SearchinGhost({
-    key: '<CONTENT_API_KEY>',
-    postsFields: ['title', 'url', 'published_at'],
-    postsExtraFields: [],
-    postsFormats: [],
-    indexedFields: ['title'],
-    template: function(post) {
-        return `<a href="${post.url}">${post.published_at} - ${post.title}</a>`
-    }
-});
-```
+### All available options
 
-
-## Options
+- **key** (string, mandatory)
+> The public content API key to get access to blog data.
+>
+> example: `'22444f78447824223cefc48062'`
 
 - **url** (string)
 > The full domaine name of the Ghost API.
@@ -170,11 +195,6 @@ var searchinGhost = new SearchinGhost({
 > default: `window.location.origin`
 >
 > example: `'https://demo.ghost.io'`
-
-- **key** (string, mandatory)
-> The public content API key to get access to the defined URL.
->
-> example: `'22444f78447824223cefc48062'`
 
 - **version** (string)
 > Set the Ghost API version. Work with both `'v2'` and `'v3'`.
@@ -347,11 +367,13 @@ var searchinGhost = new SearchinGhost({
 - **cacheMaxAge** (number)
 > Set the cache maximum age in seconds. During this amont of time, if an already
 > existing index is found in the local storage, it will be loaded without any
-> additional HTTP request its validity. When the cache is purged, the value is reset.
+> additional HTTP request to confirm its validity. When the cache is purged, the value is reset.
 >
-> This is espacially useful to save the broadband and network loads of your server.
+> This is espacially useful to save the broadband and network loads of your server. The default
+> value is set to half an hour. This value comes from the default user session duration used by
+> Google analytics.
 >
-> default: `3600`
+> default: `1800`
 
 - **onFetchStart** (function)
 > Define a callback function before we fetch the data from the Ghost API.
@@ -435,12 +457,43 @@ var searchinGhost = new SearchinGhost({
 > default: `false`
 
 
-## Internals
+## Q&A
 
-This section describe how searchinGhost works from the inside. It will make the code logic
-clearer and hopefully motivate you to actually read it.
+### Why use FlexSearch as search engine?
 
---> TODO before v1.0.0 release
+At first, we also tried these other solutions: [Lunr.js](https://github.com/olivernn/lunr.js/),
+[minisearch](https://github.com/lucaong/minisearch) and [fuse.js](https://fusejs.io/). At the end,
+[FlexSearch](https://github.com/nextapps-de/flexsearch) offered the best overall results with
+**fast** and **accurate** results, a **small enough** bundle size and it also was **easy** to
+setup/configure. It got everything to be choosen!
+
+### Why my new article do not appear in the search results?
+
+No worries, it is normal. SearchinGhost uses a cache system to store your blog data in the
+browser an limit network interaction. By default, cached data stored less than 30 minutes
+ago are still considered as valid. After that time, the new article will be available to you.
+
+Keep in mind that other users may **not** need to wait 30 minutes depending on the last time they
+did a research. If you was 1h ago, their cache will be purged and renewed so the article will show up.
+
+If you want your users to be always perfectly up to date, set the `cacheMaxAge` to `0`. When doing so,
+you should also set `loadOn` to `'focus'` to limit the number of HTTP requests.
+
+### How to display the number of search results found?
+
+Create an HTML element with the ID `"search-counter"` and leverage the `onSearchEnd()` function
+to fill it with the result. Here is an example:
+
+```html
+<p id="search-counter"></p>
+```
+
+```js
+onSearchEnd: function(posts) {
+    var counterEl = document.getElementById('search-counter');
+    counterEl.textContent = `${posts.length} posts found`;
+}
+```
 
 
 ## Known issues
@@ -463,7 +516,7 @@ clearer and hopefully motivate you to actually read it.
 - [x] Expose 'searchOn' and 'loadOn' in the configuration
 - [x] Clean the code and comments
 - [x] Make the demo mobile-friendly, it currently looks ugly on small screens
-- [ ] A code review
+- [ ] An in-depth code review made by a JS guru
 
 
 ## Contribute
@@ -480,21 +533,27 @@ $ npm install
 $ npm run build
 ```
 
+When developping, use the watch command instead, it will rebuild faster at each file modification
+and include a link to the source map which make debugging easier.
+
+```sh
+$ npm run watch
+```
+
 *Note: while creating this project I am using Node v12.16.2 with NPM v6.14.4 but is should also work with older/newer versions*
 
 
 ## Alternative solutions
 
-SearchinGhost is not alone in the field of Ghost search engines.
+SearchinGhost is not alone in the field of Ghost search plugins.
 Here is a short list of other related projects. You should definitely give
 them a try to see if they better fit your needs:
 
 
-[Ghost Hunter](https://github.com/jamalneufeld/ghostHunter) (v0.6.0, 101 kB, 26 kB gzip)
+[Ghost Hunter](https://github.com/jamalneufeld/ghostHunter) (v0.6.0 - 101 kB, 26 kB gzip)
 
 > pros:
-> - Probably the most famous
-> - The most complete solution out there
+> - The most famous, a lot of articles and tutorials about it
 > - A powerful cache system based on localStorage
 > - Full text indexation (not only posts title)
 >
@@ -504,7 +563,7 @@ them a try to see if they better fit your needs:
 > - The source code became messy over time
 
 
-[Ghost search](https://github.com/HauntedThemes/ghost-search) (v1.1.0, 12 kB, 4.2 kB gzip)
+[Ghost search](https://github.com/HauntedThemes/ghost-search) (v1.1.0 - 12 kB, 4.2 kB gzip)
 
 > pros:
 > - Well writen and easy-to-read code base
@@ -516,7 +575,7 @@ them a try to see if they better fit your needs:
 > - Do not use a scoring system to display the best results first
 
  
-[Ghost finder](https://github.com/electronthemes/ghost-finder) (v3.0.1, 827 kB, 159 kB gzip)
+[Ghost finder](https://github.com/electronthemes/ghost-finder) (v3.0.1 - 827 kB, 159 kB gzip)
 
 > pros:
 > - Pure Javascript library
@@ -524,5 +583,5 @@ them a try to see if they better fit your needs:
 > cons:
 > - The incredibly massive final bundle size
 > - Send an HTTP request for each key pressed!
-> - Do not use a search engine, only look for substring in posts titles
-> - Do not correctly index accentuated characters (e.g 'é' should be found with 'e')
+> - Do not use a search engine, only look for substrings in posts titles
+> - Do not correctly index accentuated characters (e.g. 'é' should be found with 'e')

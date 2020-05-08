@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const package = require('./package.json');
+const pkg = require('./package.json');
 
 module.exports = {
     mode: 'production',
@@ -18,7 +18,6 @@ module.exports = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -29,6 +28,6 @@ module.exports = {
         ]
     },
     plugins: [
-        new webpack.BannerPlugin(`name: SearchinGhost\nversion: ${package.version}\nrepository: ${package.homepage}`)
+        new webpack.BannerPlugin(`SearchinGhost v${pkg.version} (${pkg.homepage}) license ${pkg.license}`)
     ]
 };

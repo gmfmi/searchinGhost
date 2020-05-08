@@ -54,12 +54,12 @@
             //     searchinGhost.search('test');
             // },
             onSearchEnd: function(posts) {
-                var nb = posts.length;
+                var counter = posts.length;
                 var foundElement = document.getElementById('search-bar-items-found');
-                if (nb <= 1) {
-                    foundElement.textContent = `${posts.length} post found`;
+                if (counter <= 1) {
+                    foundElement.textContent = `${counter} post found`;
                 } else {
-                    foundElement.textContent = `${posts.length} posts found`;
+                    foundElement.textContent = `${counter} posts found`;
                 }
             }
         });
