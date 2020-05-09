@@ -341,7 +341,7 @@ time to look into each option from the next section.
 > best option is still to use the debugger. Also, do not forget to clean your local
 > cache when testing!
 >
-> *note*: by default, this option is already fields with a helper function to make it
+> *note*: by default, this option is already filled with a helper function to make it
 > easier to use the field "tags" in posts. See the `indexedFields` options.
 >
 > example:
@@ -377,6 +377,7 @@ time to look into each option from the next section.
 
 - **onFetchStart** (function)
 > Define a callback function before we fetch the data from the Ghost API.
+>
 > This function takes no argument.
 >
 > example:
@@ -387,23 +388,22 @@ time to look into each option from the next section.
 > ```
 
 - **onFetchEnd** (function)
-> Define a callback function when the fetch is complete. The function takes one
-> argument: the array of all posts returned by Ghost itself.
-> This allows you to manipulate the data before being stored. Any modification made
-> to `posts` will be kept.
+> Define a callback function when the fetch is complete. Even if modifications
+> made to `posts` are persisted, we recommand the use of the `customProcessing()`
+> function to do so.
+>
+> The function takes one argument: the array of all posts returned by Ghost itself.
 >
 > example:
 > ```js
 > onFetchEnd: function(posts) {
->   console.log("all posts fetched");
->   posts.forEach(function(item) {
->       console.log("Post content:", item);
->   });
+>   console.log("Total posts found on Ghost:", posts.lenght);
 > }
 > ```
 
 - **onIndexBuildStart** (function)
 > Define a callback function before we start building the search index.
+>
 > The function takes no argument.
 >
 > example:
@@ -415,6 +415,7 @@ time to look into each option from the next section.
 
 - **onIndexBuildEnd** (function)
 > Define a callback function when the search index build is complete.
+>
 > The function takes one argument: the build FlexSearch index object.
 >
 > example:
@@ -426,9 +427,10 @@ time to look into each option from the next section.
 
 - **onSearchStart** (function)
 > Define a callback function before starting to execute the search query. For
-> instance, it could be used to hide the results `div` while waiting for the
-> `onSearchEnd` completion. But in most cases, this is not necessary because
-> the search function is really fast but it might be useful on a very large database.
+> instance, it could be used to hide the results HTML element while waiting for the
+> `onSearchEnd` completion or add any fancy transition effects. But in most cases,
+> this is not necessary because the search function is fast enough to be nice on eyes.
+>
 > The function takes no argument.
 >
 > example:
@@ -440,13 +442,13 @@ time to look into each option from the next section.
 
 - **onSearchEnd** (function)
 > Define a callback function when the search results are ready.
+>
 > The function takes 1 argument: the array of matching posts.
 >
 > example:
 > ```js
-> onSearchStart: function(posts) {
->   console.log("before executing the search query");
->   posts.forEach(function(item) { ... });
+> onSearchEnd: function(posts) {
+>   console.log("search complete, posts found:", posts);
 > }
 > ```
 
