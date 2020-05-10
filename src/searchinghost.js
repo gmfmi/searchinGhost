@@ -43,7 +43,7 @@ export default class SearchinGhost {
                 return post;
             },
             date: {
-                locale: 'en-US',
+                locale: document.documentElement.lang || "en-US",
                 options: { year: 'numeric', month: 'short', day: 'numeric' }
             },
             cacheMaxAge: 1800,
@@ -237,7 +237,7 @@ export default class SearchinGhost {
                 this.index = this.getNewSearchIndex();
                 posts.forEach((post) => {
                     let formattedPost = this.format(post);
-                    this.index.add(formattedPost);
+                    if (formattedPost) this.index.add(formattedPost);
                 });
                 this.dataLoaded = true;
                 this.config.onIndexBuildEnd(this.index);

@@ -37,7 +37,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <ul id="search-results"></ul>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.0.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.1.0/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -59,9 +59,9 @@ into your theme `default.hbs`. We also recommand the use of jsdelivr over unpkg 
 reliability and performance.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.0.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.1.0/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@1.0.0/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@1.1.0/dist/searchinghost.min.js"></script>
 ```
 
 2. **From source**
@@ -167,7 +167,7 @@ time to look into each option from the next section.
         return post;
     },
     date: {
-        locale: 'en-US',
+        locale: document.documentElement.lang || "en-US",
         options: { year: 'numeric', month: 'short', day: 'numeric' }
     },
     cacheMaxAge: 1800,
@@ -332,9 +332,12 @@ time to look into each option from the next section.
 > ```
 
 - **customProcessing** (function)
-> You need to do some extra modification on the posts data fetched from Ghost ?
-> Use this function to do whatever you need. This function is called on each post
-> and is executed after the `onFetchEnd()` and before the `onIndexBuildStart()`.
+> You need to do some extra modification on the posts data fetched from Ghost?
+> Use this function to do whatever you need. This function is called on each post,
+> executed after the `onFetchEnd()` and before the `onIndexBuildStart()`.
+>
+> If you want to discard a post, return any JS falsy value (e.g. `null`,
+> `undefined`, `false`, `""`, ...).
 >
 > To easily debug your inputs/outputs, use the `onFetchEnd()` and `onIndexBuildEnd()`
 > to display the result with a `console.log()`. If you are a more advanced user, the
@@ -354,13 +357,14 @@ time to look into each option from the next section.
 
 - **date** (object)
 > Define the date format fetched from posts.
+>
 > See the [MDN reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString#Using_options) to get more information.
 >
 > example:
 > ```js
 > date: {
->     locale: 'fr-FR',
->     options: { year: 'numeric', month: 'short', day: 'numeric' }
+>     locale: "fr-FR",
+>     options: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
 > }
 > ```
 

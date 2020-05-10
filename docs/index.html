@@ -34,7 +34,7 @@
     </div>
     <!-- Overlay end -->
 
-    <script src="https://cdn.jsdelivr.net/npm/searchinghost@1.0.0/dist/searchinghost.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/searchinghost@1.1.0/dist/searchinghost.min.js"></script>
     <!-- <script src="../dist/searchinghost.min.js"></script> -->
 
     <script>
@@ -48,11 +48,6 @@
             loadOn: 'page',
             limit: 12,
             // cacheMaxAge: 0,
-            // onIndexBuildEnd: function() {
-            //     var searchBar = document.getElementById('search-bar');
-            //     searchBar.value = "test";
-            //     searchinGhost.search('test');
-            // },
             onSearchEnd: function(posts) {
                 var counter = posts.length;
                 var foundElement = document.getElementById('search-bar-items-found');
