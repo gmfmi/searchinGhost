@@ -37,7 +37,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <ul id="search-results"></ul>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.1.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.2.0/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -59,9 +59,9 @@ into your theme `default.hbs`. We also recommand the use of jsdelivr over unpkg 
 reliability and performance.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.1.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.2.0/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@1.1.0/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@1.2.0/dist/searchinghost.min.js"></script>
 ```
 
 2. **From source**
@@ -206,7 +206,7 @@ time to look into each option from the next section.
 > been loaded, on demand when the user click on the search bar or never.
 >
 > The `'none'` value is only useful if you want to trigger the search bar init
-> by yourself. This way, your can call `searchinGhost.loadResources()` when
+> by yourself. This way, your can call `searchinGhost.loadData()` when
 > the rest of your code is ready.
 >
 > expected values: `'page'`, `'focus'` or `'none'`

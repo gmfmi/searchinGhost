@@ -3,6 +3,10 @@ import GhostContentAPI from '@tryghost/content-api';
 
 export default class SearchinGhost {
 
+    /**
+     * Constructor and entry point of the library
+     * @param {Document} args 
+     */
     constructor(args) {
         this.config = {
             url: window.location.origin,
@@ -58,13 +62,18 @@ export default class SearchinGhost {
         
         this.dataLoaded = false;  // flag to ensure data are properly loaded
         this.postsCount = 0;      // keep track of posts ID, must be numeric
-        this.storage = this.getLocalStorage();
-        this.init(args);
-        this.setEventListners();
-        this.start();
+        this.storage = this.getLocalStorageOption();
+
+        this.initConfig(args);
+        this.addSearchListeners();
+        this.triggerDataLoad();
     }
 
-    init(args) {
+    /**
+     * Apply the user configuration and initialize important variables
+     * @param {Document} args 
+     */
+    initConfig(args) {
         for (let [key, value] of Object.entries(args)) {
             this.config[key] = value;
         }
@@ -75,10 +84,8 @@ export default class SearchinGhost {
             this.config.postsFields.push('updated_at');
         }
 
-        let searchBarElement = document.getElementById(this.config.inputId);
-        if (searchBarElement) {
-            this.searchBar = searchBarElement;
-        } else {
+        this.searchBar = document.getElementById(this.config.inputId);
+        if (!this.searchBar) {
             throw `Enable to find the input #${this.config.inputId}, please check your configuration`;
         }
 
@@ -91,41 +98,31 @@ export default class SearchinGhost {
         this.index = this.getNewSearchIndex();
     }
 
-    getNewSearchIndex() {
-        return new FlexSearch({
-            "doc": {
-                "id": "id",
-                "field": this.config.indexedFields
-            },
-            "encode": "simple",
-            "tokenize": "forward",
-            "threshold": 0,
-            "resolution": 4,
-            "depth": 0
-        });
-    }
-
-    setEventListners() {
+    /**
+     * Set the search input bar and form event listeners to trigger
+     * further searches
+     */
+    addSearchListeners() {
+        // In any case, prevent the input form from being submitted
         let searchForm = this.searchBar.closest('form');
         if (searchForm) {
-            searchForm.addEventListener("submit", (e) => {
-                e.preventDefault();
-                if (!this.dataLoaded) this.loadResources();
-                let query = this.searchBar.value.toLowerCase();
-                this.search(query);
-            });
+            searchForm.addEventListener("submit", (ev) => { ev.preventDefault(); });
         }
 
         switch(this.config.searchOn) {
         case 'keyup':
             this.searchBar.addEventListener("keyup", () => {
-                if (!this.dataLoaded) this.loadResources();
-                let query = this.searchBar.value.toLowerCase();
-                this.search(query);
+                let inputQuery = this.searchBar.value.toLowerCase();
+                this.search(inputQuery);
             });
             break;
         case 'submit':
-            if (!searchForm) {
+            if (searchForm) {
+                searchForm.addEventListener("submit", () => {
+                    let inputQuery = this.searchBar.value.toLowerCase();
+                    this.search(inputQuery);
+                });
+            } else {
                 throw `No form associated with the input ID #${this.config.inputId}, unable to start SearchinGhost`;
             }
             break;
@@ -137,16 +134,19 @@ export default class SearchinGhost {
         }
     }
 
-    start() {
+    /**
+     * Set triggers to load the posts data when ready
+     */
+    triggerDataLoad() {
         switch(this.config.loadOn) {
         case 'focus':
             this.searchBar.addEventListener('focus', () => {
-                if (!this.dataLoaded) this.loadResources();
+                if (!this.dataLoaded) this.loadData();
             });
             break;
         case 'page':
             window.addEventListener('load', () => {
-                if (!this.dataLoaded) this.loadResources();
+                if (!this.dataLoaded) this.loadData();
             });
             break;
         case 'none':
@@ -157,7 +157,11 @@ export default class SearchinGhost {
         }
     }
 
-    loadResources() {
+    /**
+     * Actually load the data into a searchable index.
+     * When this method is completed, we are ready to launch search queries.
+     */
+    loadData() {
         if (!this.storage) {
             this.log("No local storage available, switch to degraded mode");
             this.fetch();
@@ -178,6 +182,9 @@ export default class SearchinGhost {
         }
     }
 
+    /**
+     * Ensure stored data are up to date.
+     */
     validateCache() {
         let lastUpdate = this.storage.getItem("SearchinGhost_lastCacheUpdateTimestamp");
         if (!lastUpdate) {
@@ -215,6 +222,9 @@ export default class SearchinGhost {
             });
     }
 
+    /**
+     * Fetch, format and store posts data from Ghost.
+     */
     fetch() {
         this.log("Fetching data from Ghost API");
         this.config.onFetchStart();
@@ -233,26 +243,36 @@ export default class SearchinGhost {
             .then((posts) => {
                 this.config.onFetchEnd(posts);
                 this.config.onIndexBuildStart();
+
                 let updatedAt = posts[0].updated_at;
+                
                 this.index = this.getNewSearchIndex();
                 posts.forEach((post) => {
                     let formattedPost = this.format(post);
                     if (formattedPost) this.index.add(formattedPost);
                 });
+
                 this.dataLoaded = true;
                 this.config.onIndexBuildEnd(this.index);
+
                 if (this.storage) {
                     this.storage.setItem("SearchinGhost_index", this.index.export());
                     this.storage.setItem("SearchinGhost_updatedat", updatedAt);
                     this.storage.setItem("SearchinGhost_lastCacheUpdateTimestamp", new Date().toISOString());
                 }
+
                 this.log("Search index build complete");
             })
             .catch((error) => {
-                console.error("Unable to fetch Ghost data resources", error);
+                console.error("Unable to fetch Ghost data", error);
             });
     }
 
+    /**
+     * Format a post document before being indexed.
+     * @param {Document} post 
+     * @return {Document} The formatted post
+     */
     format(post) {
         // Need to use a numeric ID to improve performance & disk space
         post.id = this.postsCount++;
@@ -276,15 +296,16 @@ export default class SearchinGhost {
         return post;
     }
 
-    prettyDate(date) {
-        let d = new Date(date);
-        return d.toLocaleDateString(this.config.date.locale, this.config.date.options);
-    }
+    /**
+     * Execute a search query.
+     * @param {string} inputQuery 
+     */
+    search(inputQuery) {
+        if (!this.dataLoaded) this.loadData();
 
-    search(query) {
         this.config.onSearchStart();
 
-        let postsFound = this.index.search(query, {
+        let postsFound = this.index.search(inputQuery, {
             limit: this.config.limit
         });
 
@@ -293,6 +314,10 @@ export default class SearchinGhost {
         this.config.onSearchEnd(postsFound);
     }
 
+    /**
+     * Display the results as HTML into the configured DOM output element.
+     * @param {Document[]} posts 
+     */
     display(posts) {
         let resultParentElement = document.getElementById(this.config.outputId);
         resultParentElement.innerHTML = '';
@@ -309,26 +334,71 @@ export default class SearchinGhost {
         });
     }
 
+    /**
+     * Apply post content against an HTML template. If the resulting
+     * HTML is empty (or any other JS falsy value), `undefined` is returned.
+     * @param {function} template 
+     * @param {Document} optionalPost 
+     * @return {HTMLElement} The generated HTML or undefined
+     */
     evaluateTemplate(template, optionalPost) {
-        let generatedTemplate = template(optionalPost);
-        if (!generatedTemplate) return;
+        let generatedHTML = template(optionalPost);
+        if (!generatedHTML) return;
 
         let newElement = document.createElement(this.config.outputChildsType);
         newElement.classList.add(`${this.config.outputId}-item`);
-        newElement.innerHTML = generatedTemplate;
+        newElement.innerHTML = generatedHTML;
         return newElement;
     }
 
-    getLocalStorage() {
+    /**
+     * Get a new instance of FlexSearch.
+     * @return {FlexSearch} The instance of FlexSearch.
+     */
+    getNewSearchIndex() {
+        return new FlexSearch({
+            "doc": {
+                "id": "id",
+                "field": this.config.indexedFields
+            },
+            "encode": "simple",
+            "tokenize": "forward",
+            "threshold": 0,
+            "resolution": 4,
+            "depth": 0
+        });
+    }
+
+    /**
+     * Get the date in the locale expected format
+     * @param {string} date 
+     * @return {string} The formatted date
+     */
+    prettyDate(date) {
+        let d = new Date(date);
+        return d.toLocaleDateString(this.config.date.locale, this.config.date.options);
+    }
+
+    /**
+     * Safely get the local storage object if available.
+     * If the user browser disabled it, get `undefined` instead.
+     * @return {Storage} The storage object or `undefined`
+     */
+    getLocalStorageOption() {
         try {
-            window.localStorage.setItem('test', '');
-            window.localStorage.removeItem('test');
+            window.localStorage.setItem('storage-availability-test', '');
+            window.localStorage.removeItem('storage-availability-test');
             return window.localStorage;
         } catch(err) {
             return undefined;
         }
     }
 
+    /**
+     * Simple logger function.
+     * Output logs only if `debug` is set to `true`.
+     * @param {string} str 
+     */
     log(str) {
         if (this.config.debug) console.log(str);
     }
