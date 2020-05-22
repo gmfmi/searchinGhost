@@ -57,6 +57,7 @@ export default class SearchinGhost {
             onIndexBuildEnd: function(index) {},
             onSearchStart: function() {},
             onSearchEnd: function(posts) {},
+            indexOptions: {},
             debug: false
         }
         
@@ -356,17 +357,23 @@ export default class SearchinGhost {
      * @return {FlexSearch} The instance of FlexSearch.
      */
     getNewSearchIndex() {
-        return new FlexSearch({
-            "doc": {
-                "id": "id",
-                "field": this.config.indexedFields
+        const indexConfig = {
+            doc: {
+                id: "id",
+                field: this.config.indexedFields
             },
-            "encode": "simple",
-            "tokenize": "forward",
-            "threshold": 0,
-            "resolution": 4,
-            "depth": 0
-        });
+            encode: "simple",
+            tokenize: "forward",
+            threshold: 0,
+            resolution: 4,
+            depth: 0
+        }
+
+        for (let [key, value] of Object.entries(this.config.indexOptions)) {
+            indexConfig[key] = value;
+        }
+        
+        return new FlexSearch(indexConfig);
     }
 
     /**

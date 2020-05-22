@@ -18,6 +18,8 @@ Everything happens in the client browser, it helps us to deliver blazing fast se
 in real-time to your users (a.k.a "search-as-you-type"). We also take care about minimizing network loads by
 relying on the browser `localStorage` only sending requests when necessary.
 
+You blog is in Cyrillic, Chinese, Korean, Greek, Indian or any other non-latin languague? No worries, it is supported, see the [dedicated section](#language-settings).
+
 
 ## Demo
 
@@ -37,7 +39,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <ul id="search-results"></ul>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.2.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.3.0/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -59,9 +61,9 @@ into your theme `default.hbs`. We also recommand the use of jsdelivr over unpkg 
 reliability and performance.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.2.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.3.0/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@1.2.0/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@1.3.0/dist/searchinghost.min.js"></script>
 ```
 
 2. **From source**
@@ -177,6 +179,7 @@ time to look into each option from the next section.
     onIndexBuildEnd: function(index) {},
     onSearchStart: function() {},
     onSearchEnd: function(posts) {},
+    indexOptions: {},
     debug: false
 });
 ```
@@ -456,11 +459,77 @@ time to look into each option from the next section.
 > }
 > ```
 
+- **indexOptions** (object)
+> Add extra search index configuration or override the default ones. These options will
+> be merge with the already provided one:
+> ```js
+> {
+>     doc: {
+>         id: "id",
+>         field: this.config.indexedFields
+>     },
+>     encode: "simple",
+>     tokenize: "forward",
+>     threshold: 0,
+>     resolution: 4,
+>     depth: 0
+> }
+> ```
+>
+> Also use this parameter to enable non-latin language support, see [this section](#language-settings).
+>
+> default: `{}`
+
 - **debug** (boolean)
 > When something is not working as expected, set to `true`
 > to display application logs.
 >
 > default: `false`
+
+
+## Language settings
+
+If your blog uses a latin alphabet language (e.g. english, french, spanish) or a northern/eastern europeen one (e.g. german, swedish, hungarien, slovenian, estonian) the default configuration will work just fine. In the other cases, find the appropriate `indexOptions` value and add it to your main SearchinGhost configuration.
+
+To create your own specific settings, refer to the
+[FlexSearch README](https://github.com/nextapps-de/flexsearch/tree/0.6.22#add-custom-matcher) and
+[these](https://github.com/nextapps-de/flexsearch/issues/51)
+[three](https://github.com/nextapps-de/flexsearch/issues/51)
+[issues](https://github.com/nextapps-de/flexsearch/issues/73).
+
+If nothing works for you or if the resulting behaviour is not correct, feel free to [create an issue](https://github.com/gmfmi/searchinGhost/issues).
+
+### Arabic
+
+```js
+indexOptions: {
+    encode: false,
+    rtl: true,
+    split: /\s+/
+}
+```
+
+### Chinese, Korean, Japanese
+
+```js
+indexOptions: {
+    encode: false,
+    tokenize: function(str){
+        return str.replace(/[\x00-\x7F]/g, "").split("");
+    }
+}
+```
+
+### Cyrillic, Indian, Sinhala
+
+This option can be used by any space-separated word languages that uses complex characters.
+
+```js
+indexOptions: {
+    encode: false,
+    split: /\s+/
+}
+```
 
 
 ## Q&A
@@ -502,13 +571,6 @@ onSearchEnd: function(posts) {
 ```
 
 
-## Known issues
-
-- [x] Properly handle network errors
-- [x] Browser with disabled `localStorage` not supported yet
-- [x] Support both Ghost API v2 and v3
-
-
 ## Road map
 
 - [x] Use a logging strategy based on `debug: true`
@@ -523,6 +585,8 @@ onSearchEnd: function(posts) {
 - [x] Clean the code and comments
 - [x] Make the demo mobile-friendly, it currently looks ugly on small screens
 - [ ] An in-depth code review made by a JS guru
+
+From now on, any modification is tracked in this dedicated [CHANGELOG.md](CHANGELOG.md) file.
 
 
 ## Contribute

@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-(empty)
+### Add
+- Search engine configuration exposed to user
+- Non-latin languages support
+
 
 ## [1.2.0] - 2020-05-14
 ### Add
