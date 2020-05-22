@@ -1,5 +1,4 @@
 import FlexSearch from 'flexsearch';
-import GhostContentAPI from '@tryghost/content-api';
 
 export default class SearchinGhost {
 
@@ -89,12 +88,6 @@ export default class SearchinGhost {
         if (!this.searchBar) {
             throw `Enable to find the input #${this.config.inputId}, please check your configuration`;
         }
-
-        this.ghostApi = new GhostContentAPI({
-            url: this.config.url,
-            key: this.config.key,
-            version: this.config.version
-        });
 
         this.index = this.getNewSearchIndex();
     }
@@ -201,14 +194,18 @@ export default class SearchinGhost {
             return;
         }
 
-        this.ghostApi
-            .posts
-            .browse({
-                limit: 1,
-                fields: ['updated_at'],
-                order: 'updated_at DESC'
+        const browseOptions = {
+            limit: 1,
+            fields: ['updated_at'],
+            order: 'updated_at DESC'
+        };
+        const lastUpdatedPostUrl = this.buildUrl(browseOptions);
+        fetch(lastUpdatedPostUrl)
+            .then(function(response) {
+            return response.json();
             })
-            .then((posts) => {
+            .then((jsonResponse) => {
+                const posts = jsonResponse.posts;
                 let storedUpdateTimestamp = this.storage.getItem("SearchinGhost_updatedat");
                 let latestPostUpdateTimestamp = posts[0].updated_at;
                 if (latestPostUpdateTimestamp !== storedUpdateTimestamp) {
@@ -230,7 +227,7 @@ export default class SearchinGhost {
         this.log("Fetching data from Ghost API");
         this.config.onFetchStart();
 
-        let browseOptions = {
+        const browseOptions = {
             limit: 'all',
             fields: this.config.postsFields,
             order: 'updated_at DESC'
@@ -238,10 +235,13 @@ export default class SearchinGhost {
         if (this.config.postsExtraFields.length > 0) browseOptions.include = this.config.postsExtraFields;
         if (this.config.postsFormats.length > 0) browseOptions.formats = this.config.postsFormats;
 
-        this.ghostApi
-            .posts
-            .browse(browseOptions)
-            .then((posts) => {
+        const allPostsUrl = this.buildUrl(browseOptions);
+        fetch(allPostsUrl)
+            .then(function(response) {
+            return response.json();
+            })
+            .then((jsonResponse) => {
+                const posts = jsonResponse.posts;
                 this.config.onFetchEnd(posts);
                 this.config.onIndexBuildStart();
 
@@ -377,7 +377,20 @@ export default class SearchinGhost {
     }
 
     /**
-     * Get the date in the locale expected format
+     * Build the final Ghost API URL resources based on options.
+     * @param {Document} options the Ghost API browse options
+     * @return {string} the url
+     */
+    buildUrl(options) {
+        let url = `${this.config.url}/ghost/api/${this.config.version}/content/posts/?key=${this.config.key}`;
+        for (const [key, value] of Object.entries(options)) {
+            url += `&${key}=${value}`;
+        }
+        return encodeURI(url);
+    }
+
+    /**
+     * Get the date in the locale expected format.
      * @param {string} date 
      * @return {string} The formatted date
      */

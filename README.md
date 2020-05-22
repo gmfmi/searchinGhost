@@ -11,7 +11,7 @@ A pure javascript, lightweight & in-browser full-text search plugin for [Ghost](
 ## Description
 
 SearchinGhost is a lightweight and extensible search engine dedicated to the Ghost blogging platform. In its core, it uses
-the [Ghost Content API](https://ghost.org/docs/api/v3/javascript/content/) to load your blog content and the powerful
+the [Ghost Content API](https://ghost.org/docs/api/v3/content/) to load your blog content and the powerful
 [FlexSearch](https://github.com/nextapps-de/flexsearch) library to index and execute search queries.
 
 Everything happens in the client browser, it helps us to deliver blazing fast search results and displays them
