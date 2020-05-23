@@ -124,6 +124,7 @@ export default class SearchinGhost {
                 this.search(inputQuery);
             });
             break;
+        case false:
         case 'none':
             // do nothing
             break;
@@ -147,6 +148,7 @@ export default class SearchinGhost {
                 if (!this.dataLoaded) this.loadData();
             });
             break;
+        case false:
         case 'none':
             // do nothing
             break;

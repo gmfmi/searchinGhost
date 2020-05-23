@@ -5,16 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ## [Unreleased]
-(empty)
+### Added
+- The `outputChildsType` wrapping element is not optional.
+
+### Changed
+- Use `false`(boolean) value instead of `'none'` for the fields "loadOn" and "searchOn".
+  The `'none'` value continues to work but has been deprecated.
+
 
 ## [1.3.2] - 2020-05-26
 ### Fixed
 - Enable library import using yarn/NPM.
 
+
 ## [1.3.1] - 2020-05-23
 ### Added
 - Ability to set `inputId` to `false` when no input field is needed.
+
 
 ## [1.3.0] - 2020-05-23
 ### Added

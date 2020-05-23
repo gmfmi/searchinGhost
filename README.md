@@ -208,11 +208,10 @@ time to look into each option from the next section.
 > Set the library loading strategy. It can be triggered when the HTML page has
 > been loaded, on demand when the user click on the search bar or never.
 >
-> The `'none'` value is only useful if you want to trigger the search bar init
-> by yourself. This way, your can call `searchinGhost.loadData()` when
-> the rest of your code is ready.
+> To trigger the search bar initialization by yourself, set this value to `false` (boolean).
+> This way, your can call `searchinGhost.loadData()` when the rest of your code is ready.
 >
-> expected values: `'page'`, `'focus'` or `'none'`
+> expected values: `'page'`, `'focus'` or `false`
 >
 > default: `'focus'`
 
@@ -221,10 +220,10 @@ time to look into each option from the next section.
 > user key stroke and form submit, use `'keyup'`. To search only when the user submit the
 > form via a button or entering the 'enter' key, use `'submit'`. If
 > you want to have a complete control of it from your own javascript
-> code, use `'none'` and execute the search by yourself using
+> code, use `false` (boolean) and execute the search by yourself using
 > `searchinGhost.search("...")`.
 >
-> expected values: `'keyup'`, `'submit'` or `'none'`
+> expected values: `'keyup'`, `'submit'` or `false`
 >
 > default: `'keyup'`
 
@@ -234,14 +233,16 @@ time to look into each option from the next section.
 > degrade performance too much. But remember, when the search engine hits this limit
 > it stops digging and return the results: the lower, the better.
 >
+> To display all the available results, use `0`.
+>
 > default: `10`
 
 - **inputId** (string)
 > The HTML `id` param defined on your input search bar.
 > Do not include '#' in the name.
 >
-> If you do not need any input field, set the value to `false` and set `searchOn`
-> to `none`. Then, run a search using `searchinGhost.search("<your query>");`.
+> If you do not need any input field, set the value to `false` and also set `searchOn`
+> to `false`. Then, run a search using `searchinGhost.search("<your query>");`.
 >
 > default: `'search-bar'`
 
@@ -572,6 +573,20 @@ to fill it with the result. Here is an example:
 onSearchEnd: function(posts) {
     var counterEl = document.getElementById('search-counter');
     counterEl.textContent = `${posts.length} posts found`;
+}
+```
+
+### Can I display the latest posts when nothing is found?
+
+Yes, by using SearchinGhost internals methods but it is possible. It may look like
+black magic but add the code below to your current configuration. Here, `searchinGhost`
+refers to your own instance created with `new SearchinGhost(...)`.
+
+```js
+emptyTemplate: function() {
+    var allPostsArray = Object.values(searchinGhost.index.l);
+    var latestPosts = allPostsArray.slice(0, 6);
+    searchinGhost.display(latestPosts);
 }
 ```
 
