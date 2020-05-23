@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 (empty)
 
+## [1.3.1] - 2020-05-23
+### Added
+- Ability to set `inputId` to `false` when no input field is needed.
+
 ## [1.3.0] - 2020-05-23
 ### Added
 - Search engine configuration exposed to user.

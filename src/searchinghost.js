@@ -85,6 +85,9 @@ export default class SearchinGhost {
         }
 
         this.searchBar = document.getElementById(this.config.inputId);
+        if (!this.searchBar && !this.config.inputId) {
+            this.searchBar = document.createElement('input');
+        }
         if (!this.searchBar) {
             throw `Enable to find the input #${this.config.inputId}, please check your configuration`;
         }
@@ -111,14 +114,10 @@ export default class SearchinGhost {
             });
             break;
         case 'submit':
-            if (searchForm) {
-                searchForm.addEventListener("submit", () => {
-                    let inputQuery = this.searchBar.value.toLowerCase();
-                    this.search(inputQuery);
-                });
-            } else {
-                throw `No form associated with the input ID #${this.config.inputId}, unable to start SearchinGhost`;
-            }
+            searchForm.addEventListener("submit", () => {
+                let inputQuery = this.searchBar.value.toLowerCase();
+                this.search(inputQuery);
+            });
             break;
         case 'none':
             // do nothing

@@ -39,7 +39,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <ul id="search-results"></ul>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.3.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.3.1/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -61,9 +61,9 @@ into your theme `default.hbs`. We also recommand the use of jsdelivr over unpkg 
 reliability and performance.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.3.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.3.1/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@1.3.0/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@1.3.1/dist/searchinghost.min.js"></script>
 ```
 
 2. **From source**
@@ -239,6 +239,9 @@ time to look into each option from the next section.
 - **inputId** (string)
 > The HTML `id` param defined on your input search bar.
 > Do not include '#' in the name.
+>
+> If you do not need any input field, set the value to `false` and set `searchOn`
+> to `none`. Then, run a search using `searchinGhost.search("<your query>");`.
 >
 > default: `'search-bar'`
 
