@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 (empty)
 
+## [1.3.2] - 2020-05-26
+### Fixed
+- Enable library import using yarn/NPM.
+
 ## [1.3.1] - 2020-05-23
 ### Added
 - Ability to set `inputId` to `false` when no input field is needed.
