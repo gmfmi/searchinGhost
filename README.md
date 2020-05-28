@@ -252,10 +252,12 @@ time to look into each option from the next section.
 > default: `'search-results'`
 
 - **outputChildsType** (string)
-> Define the HTML type of each returned result. This element will be appended to
-> the `outputId` parent element.
-> By default, the result element type is a `li` but you can use whatever you want.
-> It must be a valid element known by the function `document.createElement()`.
+> Each search result is wrapped inside a child element before being added to the
+> `outpudId` parent element. The default type is `li` but you can set it to any
+> valid HTML element (see [MDN docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element)).
+>
+> If you do not want to use a wrapping element to directly append the results of
+> `template` and `emptyTemplate` to the output element, set the value to `false` (boolean).
 >
 > default: `'li'`
 
