@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
-### Added
-- The `outputChildsType` wrapping element is not optional.
+(empty)
 
+## [1.3.3] - 2020-05-28
 ### Changed
+- The `outputChildsType` wrapping element becomes optional, set it value to `false` to disable it.
 - Use `false`(boolean) value instead of `'none'` for the fields "loadOn" and "searchOn".
   The `'none'` value continues to work but has been deprecated.
 
