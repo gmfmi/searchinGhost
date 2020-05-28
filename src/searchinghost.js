@@ -322,16 +322,29 @@ export default class SearchinGhost {
         let resultParentElement = document.getElementById(this.config.outputId);
         resultParentElement.innerHTML = '';
 
-        if (posts.length < 1) {
-            let resultElement = this.evaluateTemplate(this.config.emptyTemplate, null);
-            if (resultElement) resultParentElement.appendChild(resultElement);
-            return;
-        }
+        if (this.config.outputChildsType) {
+            if (posts.length < 1) {
+                let resultElement = this.evaluateTemplate(this.config.emptyTemplate, null);
+                if (resultElement) resultParentElement.appendChild(resultElement);
+                return;
+            }
 
-        posts.forEach((post) => {
-            let resultElement = this.evaluateTemplate(this.config.template, post);
-            if (resultElement) resultParentElement.appendChild(resultElement);
-        });
+            posts.forEach((post) => {
+                let resultElement = this.evaluateTemplate(this.config.template, post);
+                if (resultElement) resultParentElement.appendChild(resultElement);
+            });
+        } else {
+            if (posts.length < 1) {
+                let resultString = this.config.emptyTemplate();
+                if (resultString) resultParentElement.insertAdjacentHTML('beforeend', resultString);
+                return;
+            }
+
+            posts.forEach((post) => {
+                let resultString = this.config.template(post);
+                if (resultString) resultParentElement.insertAdjacentHTML('beforeend', resultString);
+            });
+        }
     }
 
     /**
