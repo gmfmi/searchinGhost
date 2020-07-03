@@ -20,6 +20,8 @@ relying on the browser `localStorage` only sending requests when necessary.
 
 You blog is in Cyrillic, Chinese, Korean, Greek, Indian or any other non-latin languague? No worries, it is supported, see the [dedicated section](#language-settings).
 
+*__BONUS__: if you like the concept but you would like to install it quickly and easily (in less than 3 minutes, really!), please visit the [SearchinGhostEasy project](https://github.com/gmfmi/searchinghost-easy).*
+
 
 ## Demo
 
@@ -559,6 +561,31 @@ did a research. If you was 1h ago, their cache will be purged and renewed so the
 
 If you want your users to be always perfectly up to date, set the `cacheMaxAge` to `0`. When doing so,
 you should also set `loadOn` to `'focus'` to limit the number of HTTP requests.
+
+### How to optimize the pictures load time?
+
+By default, when you use the `feature_image` URL variable to display images in your search results, you will always get the original/full size one
+and they are generally too large (in size and weight) for our needs, a miniature would be a better fit.
+
+Since Ghost V3, a media processing engine is embedded to create responsive images. By default, Ghost recreates 6 differents images
+of the given one. The available sizes are: `w30`, `w100`, `w300`, `w600`, `w1000`, `w2000`.
+
+In our case, the easiest way load images faster is simply to use smaller images. Basically,
+we want this URL `https://www.example.fr/content/images/2020/05/picture.jpg` (default one fetched from the Ghost API) to become
+`https://www.example.fr/content/images/size/w600/2020/05/picture.jpg` (the 600px width one).
+
+To do so, update the configuration by adding a `"customProcessing"` field with the following code example. Of course, you can
+use any of the available size mentioned above instead of `w600`.
+
+```js
+customProcessing: function(post) {
+    if (post.tags) post.string_tags = post.tags.map(o => o.name).join(' ').toLowerCase();
+    if (post.feature_image) post.feature_image = post.feature_image.replace('/images/', '/images/size/w600/'); // reduce image size to w600
+    return post;
+}
+```
+
+This modification is **not** immediate, you need a cache refresh to actually see the difference.
 
 ### How to display the number of search results found?
 
