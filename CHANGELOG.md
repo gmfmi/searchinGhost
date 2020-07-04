@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 (empty)
 
+## [1.4.0] - 2020-07-05
+### Changed
+- The `outputId` becomes optional, set it value to `false` to disable it.
+- Replace all `throw` statement by warn logs.
+- The `search()` method now returns the posts found.
+
+
 ## [1.3.3] - 2020-05-28
 ### Changed
 - The `outputChildsType` wrapping element becomes optional, set it value to `false` to disable it.

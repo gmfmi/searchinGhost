@@ -65,7 +65,6 @@ export default class SearchinGhost {
         this.storage = this.getLocalStorageOption();
 
         this.initConfig(args);
-        this.addSearchListeners();
         this.triggerDataLoad();
     }
 
@@ -84,17 +83,20 @@ export default class SearchinGhost {
             this.config.postsFields.push('updated_at');
         }
 
-        this.searchBar = document.getElementById(this.config.inputId);
-        if (!this.searchBar && !this.config.inputId) {
-            this.searchBar = document.createElement('input');
-        }
-        if (!this.searchBar) {
-            throw `Enable to find the input element #${this.config.inputId}, please check your configuration`;
+        if (this.config.inputId) {
+            this.searchBar = document.getElementById(this.config.inputId);
+            if (this.searchBar) {
+                this.addSearchListeners();
+            } else {
+                this.error(`Enable to find the input element #${this.config.inputId}, please check your configuration`);
+            }
         }
 
-        this.searchResultElement = document.getElementById(this.config.outputId);
-        if (!this.searchResultElement) {
-            throw `Enable to find the output element #${this.config.outputId}, please check your configuration`;
+        if (this.config.outputId) {
+            this.searchResult = document.getElementById(this.config.outputId);
+            if (!this.searchResult) {
+                this.error(`Enable to find the output element #${this.config.outputId}, please check your configuration`);
+            }
         }
 
         this.index = this.getNewSearchIndex();
@@ -129,7 +131,7 @@ export default class SearchinGhost {
             // do nothing
             break;
         default:
-            throw `Unknown "searchOn" option: '${this.config.searchOn}'`
+            this.error(`Unknown "searchOn" option: '${this.config.searchOn}'`);
         }
     }
 
@@ -139,13 +141,15 @@ export default class SearchinGhost {
     triggerDataLoad() {
         switch(this.config.loadOn) {
         case 'focus':
-            this.searchBar.addEventListener('focus', () => {
-                if (!this.dataLoaded) this.loadData();
-            });
+            if (this.searchBar) {
+                this.searchBar.addEventListener('focus', () => {
+                    this.loadData();
+                });
+            }
             break;
         case 'page':
             window.addEventListener('load', () => {
-                if (!this.dataLoaded) this.loadData();
+                this.loadData();
             });
             break;
         case false:
@@ -153,7 +157,7 @@ export default class SearchinGhost {
             // do nothing
             break;
         default:
-            throw `Unknown "loadOn" option: '${this.config.loadOn}'`
+            this.error(`Unknown "loadOn" option: '${this.config.loadOn}'`);
         }
     }
 
@@ -162,6 +166,8 @@ export default class SearchinGhost {
      * When this method is completed, we are ready to launch search queries.
      */
     loadData() {
+        if (this.dataLoaded) return;
+
         if (!this.storage) {
             this.log("No local storage available, switch to degraded mode");
             this.fetch();
@@ -208,7 +214,7 @@ export default class SearchinGhost {
         const lastUpdatedPostUrl = this.buildUrl(browseOptions);
         fetch(lastUpdatedPostUrl)
             .then(function(response) {
-            return response.json();
+                return response.json();
             })
             .then((jsonResponse) => {
                 const posts = jsonResponse.posts;
@@ -244,7 +250,7 @@ export default class SearchinGhost {
         const allPostsUrl = this.buildUrl(browseOptions);
         fetch(allPostsUrl)
             .then(function(response) {
-            return response.json();
+                return response.json();
             })
             .then((jsonResponse) => {
                 const posts = jsonResponse.posts;
@@ -271,7 +277,7 @@ export default class SearchinGhost {
                 this.log("Search index build complete");
             })
             .catch((error) => {
-                console.error("Unable to fetch Ghost data", error);
+                this.error("Unable to fetch Ghost data", error);
             });
     }
 
@@ -308,7 +314,7 @@ export default class SearchinGhost {
      * @param {string} inputQuery 
      */
     search(inputQuery) {
-        if (!this.dataLoaded) this.loadData();
+        this.loadData();
 
         this.config.onSearchStart();
 
@@ -316,9 +322,10 @@ export default class SearchinGhost {
             limit: this.config.limit
         });
 
-        this.display(postsFound);
+        if (this.searchResult) this.display(postsFound);
 
         this.config.onSearchEnd(postsFound);
+        return postsFound;
     }
 
     /**
@@ -326,7 +333,7 @@ export default class SearchinGhost {
      * @param {Document[]} posts 
      */
     display(posts) {
-        this.searchResultElement.innerHTML = '';
+        this.searchResult.innerHTML = '';
 
         if (posts.length < 1) {
             let generatedHtml = this.evaluateTemplate(this.config.emptyTemplate, null);
@@ -368,9 +375,9 @@ export default class SearchinGhost {
     insertTemplate(generatedHtml) {
         if (generatedHtml) {
             if (this.config.outputChildsType) {
-                this.searchResultElement.appendChild(generatedHtml);
+                this.searchResult.appendChild(generatedHtml);
             } else {
-                this.searchResultElement.insertAdjacentHTML('beforeend', generatedHtml);
+                this.searchResult.insertAdjacentHTML('beforeend', generatedHtml);
             }
         }
     }
@@ -438,11 +445,19 @@ export default class SearchinGhost {
     }
 
     /**
-     * Simple logger function.
+     * Simple logging function.
      * Output logs only if `debug` is set to `true`.
-     * @param {string} str 
+     * @param {string} str the text to output
      */
     log(str) {
         if (this.config.debug) console.log(str);
+    }
+
+    /**
+     * Simple "error" level logging function.
+     * @param {string} str the text to output
+     */
+    error(str) {
+        console.error(str);
     }
 }

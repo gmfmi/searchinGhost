@@ -41,7 +41,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <ul id="search-results"></ul>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.3.3/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.4.0/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -63,9 +63,9 @@ into your theme `default.hbs`. We also recommand the use of jsdelivr over unpkg 
 reliability and performance.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.3.3/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.4.0/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@1.3.3/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@1.4.0/dist/searchinghost.min.js"></script>
 ```
 
 2. **From source**
@@ -244,13 +244,17 @@ time to look into each option from the next section.
 > Do not include '#' in the name.
 >
 > If you do not need any input field, set the value to `false` and also set `searchOn`
-> to `false`. Then, run a search using `searchinGhost.search("<your query>");`.
+> to `false` (boolean). Then, run a search using `searchinGhost.search("<your query>")`.
 >
 > default: `'search-bar'`
 
 - **outputId** (string: 'search-results')
 > The HTML `id` param defined on your output element. This element should be
 > empty in your template, it will be filled with the search results.
+>
+> If you are using a JS framework to display the search results, set this value to
+> `false` (boolean). You will get the posts found as the value returned by the
+> function `searchinGhost.search("<your query>")`;
 >
 > default: `'search-results'`
 
@@ -616,6 +620,43 @@ emptyTemplate: function() {
     searchinGhost.display(latestPosts);
 }
 ```
+
+### Can I use this library with a JS framework?
+
+If are using a framework like React, Vue or Angular, you probably do not want to let SearchinGhost
+manipulate the DOM by itself. Because you definitely need to keep any content update within your framework,
+here is the configuration you should use:
+
+```js
+var searchinGhost = new SearchinGhost({
+    key: '<CONTENT_API_KEY>',
+    inputId: false,
+    outputId: false,
+    [...]
+});
+```
+
+Now, to run a search query, call this SearchinGhost method:
+
+```js
+var postsFound = searchinGhost.search("my query");
+
+// Where 'postsFound' content looks like:
+[
+  {
+    "title": "A Full and Comprehensive Style Test",
+    "published_at": "Sep 1, 2012",
+    [...]
+  },
+  {
+    "title": "Publishing options",
+    "published_at": "Aug 20, 2018",
+    [...]
+  }
+]
+```
+
+This way, nothing will be rendered behind your back and everything will stay under control in the shadowDom.
 
 
 ## Road map
