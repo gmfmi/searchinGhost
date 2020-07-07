@@ -543,6 +543,38 @@ indexOptions: {
 }
 ```
 
+### Mixed language types
+
+If you need to use multiple language types (e.g. Cyrillic/English or Indian/Spanish), use the dedicated
+configuration below. I know, it can look scary at first look but just copy/paste it and trust me.
+
+```js
+indexOptions: {
+    split: /\s+/,
+    encode: function(str) {
+        var regexp_replacements = {
+            "a": /[àáâãäå]/g,
+            "e": /[èéêë]/g,
+            "i": /[ìíîï]/g,
+            "o": /[òóôõöő]/g,
+            "u": /[ùúûüű]/g,
+            "y": /[ýŷÿ]/g,
+            "n": /ñ/g,
+            "c": /[ç]/g,
+            "s": /ß/g,
+            " ": /[-/]/g,
+            "": /['!"#$%&\\()\*+,-./:;<=>?@[\]^_`{|}~]/g,
+            " ": /\s+/g,
+        }
+        str = str.toLowerCase();
+        for (var key of Object.keys(regexp_replacements)) {
+            str = str.replace(regexp_replacements[key], key);
+        }
+        return str === " " ? "" : str;
+    }
+}
+```
+
 
 ## Q&A
 
