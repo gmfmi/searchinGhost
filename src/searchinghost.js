@@ -277,7 +277,7 @@ export default class SearchinGhost {
                 this.log("Search index build complete");
             })
             .catch((error) => {
-                this.error("Unable to fetch Ghost data", error);
+                this.error("Unable to fetch Ghost data.\n", error);
             });
     }
 
@@ -448,16 +448,18 @@ export default class SearchinGhost {
      * Simple logging function.
      * Output logs only if `debug` is set to `true`.
      * @param {string} str the text to output
+     * @param {*} obj optional object to output
      */
-    log(str) {
-        if (this.config.debug) console.log(str);
+    log(str, obj) {
+        if (this.config.debug) obj ? console.log(str, obj) : console.log(str);
     }
 
     /**
      * Simple "error" level logging function.
      * @param {string} str the text to output
+     * @param {*} obj optional object to output
      */
-    error(str) {
-        console.error(str);
+    error(str, obj) {
+        obj ? console.error(str, obj) : console.error(str);
     }
 }
