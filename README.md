@@ -41,7 +41,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <ul id="search-results"></ul>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.4.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.5.0/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -63,9 +63,9 @@ into your theme `default.hbs`. We also recommand the use of jsdelivr over unpkg 
 reliability and performance.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.4.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.5.0/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@1.4.0/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@1.5.0/dist/searchinghost.min.js"></script>
 ```
 
 2. **From source**
@@ -78,8 +78,10 @@ download the `dist/searchinghost.min.js` file.
 
 Install SearchinGhost as a project dependency.
 
-```sh
+```shell
 $ npm install searchinghost
+# OR
+$ yarn add searchinghost
 ```
 
 Then, load it from any Javascript file.
@@ -182,6 +184,7 @@ time to look into each option from the next section.
     onSearchStart: function() {},
     onSearchEnd: function(posts) {},
     indexOptions: {},
+    searchOptions: {},
     debug: false
 });
 ```
@@ -489,6 +492,35 @@ time to look into each option from the next section.
 > ```
 >
 > Also use this parameter to enable non-latin language support, see [this section](#language-settings).
+>
+> default: `{}`
+
+- **searchOptions** (object)
+> Made for advanced users, allows you to fine tune the search queries.
+> Refer to [this](https://github.com/nextapps-de/flexsearch/tree/0.6.22#custom-search) Flexsearch documentation.
+>
+> We use this specific query construction: `index.search("your query", searchOptions)` so anything added
+> to `searchOptions` will be passed to Flexsearch this way.
+>
+> This parameter can be really handy when filtering posts based on a tag. As an example:
+> ```js
+> searchOptions: {
+>     where: {
+>         string_tags: "getting started"
+>     }
+> }
+> ```
+>
+> Also note that the `limit` Searchinghost option is automatically merged into the `searchOptions`. In our case, it
+> would finally become:
+> ```js
+> searchOptions: {
+>     where: {
+>         string_tags: "getting started"
+>     },
+>     limit: 10
+> }
+> ```
 >
 > default: `{}`
 

@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+(empty)
+
+## [1.5.0] - 2020-08-05
+### Added
+- A new `searchOptions` field to fine tune Flexsearch searches.
+
 ### Changed
 - Better info and error console logs, the error object is also printed out.
+
 
 ## [1.4.0] - 2020-07-05
 ### Changed

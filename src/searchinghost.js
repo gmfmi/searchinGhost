@@ -57,6 +57,7 @@ export default class SearchinGhost {
             onSearchStart: function() {},
             onSearchEnd: function(posts) {},
             indexOptions: {},
+            searchOptions: {},
             debug: false
         }
         
@@ -77,6 +78,9 @@ export default class SearchinGhost {
             this.config[key] = value;
         }
 
+        // Inject the "limit" arg within the final searchOptions
+        this.config.searchOptions.limit = this.config.limit;
+
         // Ensure 'updated_at' will be fetched, needed for the local storage logic
         this.originalPostsFields = this.config.postsFields;
         if (!this.config.postsFields.includes('updated_at')) {
@@ -84,8 +88,8 @@ export default class SearchinGhost {
         }
 
         if (this.config.inputId) {
-            this.searchBar = document.getElementById(this.config.inputId);
-            if (this.searchBar) {
+            this.searchBarElmt = document.getElementById(this.config.inputId);
+            if (this.searchBarElmt) {
                 this.addSearchListeners();
             } else {
                 this.error(`Enable to find the input element #${this.config.inputId}, please check your configuration`);
@@ -93,8 +97,8 @@ export default class SearchinGhost {
         }
 
         if (this.config.outputId) {
-            this.searchResult = document.getElementById(this.config.outputId);
-            if (!this.searchResult) {
+            this.searchResultElmt = document.getElementById(this.config.outputId);
+            if (!this.searchResultElmt) {
                 this.error(`Enable to find the output element #${this.config.outputId}, please check your configuration`);
             }
         }
@@ -108,21 +112,21 @@ export default class SearchinGhost {
      */
     addSearchListeners() {
         // In any case, prevent the input form from being submitted
-        let searchForm = this.searchBar.closest('form');
+        let searchForm = this.searchBarElmt.closest('form');
         if (searchForm) {
             searchForm.addEventListener("submit", (ev) => { ev.preventDefault(); });
         }
 
         switch(this.config.searchOn) {
         case 'keyup':
-            this.searchBar.addEventListener("keyup", () => {
-                let inputQuery = this.searchBar.value.toLowerCase();
+            this.searchBarElmt.addEventListener("keyup", () => {
+                let inputQuery = this.searchBarElmt.value.toLowerCase();
                 this.search(inputQuery);
             });
             break;
         case 'submit':
             searchForm.addEventListener("submit", () => {
-                let inputQuery = this.searchBar.value.toLowerCase();
+                let inputQuery = this.searchBarElmt.value.toLowerCase();
                 this.search(inputQuery);
             });
             break;
@@ -141,8 +145,8 @@ export default class SearchinGhost {
     triggerDataLoad() {
         switch(this.config.loadOn) {
         case 'focus':
-            if (this.searchBar) {
-                this.searchBar.addEventListener('focus', () => {
+            if (this.searchBarElmt) {
+                this.searchBarElmt.addEventListener('focus', () => {
                     this.loadData();
                 });
             }
@@ -318,11 +322,9 @@ export default class SearchinGhost {
 
         this.config.onSearchStart();
 
-        let postsFound = this.index.search(inputQuery, {
-            limit: this.config.limit
-        });
+        let postsFound = this.index.search(inputQuery, this.config.searchOptions);
 
-        if (this.searchResult) this.display(postsFound);
+        if (this.searchResultElmt) this.display(postsFound);
 
         this.config.onSearchEnd(postsFound);
         return postsFound;
@@ -333,7 +335,7 @@ export default class SearchinGhost {
      * @param {Document[]} posts 
      */
     display(posts) {
-        this.searchResult.innerHTML = '';
+        this.searchResultElmt.innerHTML = '';
 
         if (posts.length < 1) {
             let generatedHtml = this.evaluateTemplate(this.config.emptyTemplate, null);
@@ -375,9 +377,9 @@ export default class SearchinGhost {
     insertTemplate(generatedHtml) {
         if (generatedHtml) {
             if (this.config.outputChildsType) {
-                this.searchResult.appendChild(generatedHtml);
+                this.searchResultElmt.appendChild(generatedHtml);
             } else {
-                this.searchResult.insertAdjacentHTML('beforeend', generatedHtml);
+                this.searchResultElmt.insertAdjacentHTML('beforeend', generatedHtml);
             }
         }
     }
