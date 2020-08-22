@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 (empty)
 
+
+## [1.6.0] - 2020-08-22
+### Changed
+- The fields `inputId` and `outputId` now support array values. Very useful for multi search bars and/or
+  multi result elements setup. Configuration backward compability is preserved.
+
+
 ## [1.5.0] - 2020-08-05
 ### Added
 - A new `searchOptions` field to fine tune Flexsearch searches.

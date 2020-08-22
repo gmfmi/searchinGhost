@@ -14,8 +14,8 @@ export default class SearchinGhost {
             loadOn: 'focus',
             searchOn: 'keyup',
             limit: 10,
-            inputId: 'search-bar',
-            outputId: 'search-results',
+            inputId: ['search-bar'],
+            outputId: ['search-results'],
             outputChildsType: 'li',
             postsFields: ['title', 'url', 'excerpt', 'custom_excerpt', 'published_at', 'feature_image'],
             postsExtraFields: ['tags'],
@@ -60,6 +60,10 @@ export default class SearchinGhost {
             searchOptions: {},
             debug: false
         }
+
+        // ensure config backward compatilibity of <1.5.0
+        if (!Array.isArray(this.config.inputId)) this.config.inputId = [this.config.inputId];
+        if (!Array.isArray(this.config.outputId)) this.config.outputId = [this.config.outputId];
         
         this.dataLoaded = false;  // flag to ensure data are properly loaded
         this.postsCount = 0;      // keep track of posts ID, must be numeric
@@ -87,20 +91,29 @@ export default class SearchinGhost {
             this.config.postsFields.push('updated_at');
         }
 
-        if (this.config.inputId) {
-            this.searchBarElmt = document.getElementById(this.config.inputId);
-            if (this.searchBarElmt) {
-                this.addSearchListeners();
-            } else {
-                this.error(`Enable to find the input element #${this.config.inputId}, please check your configuration`);
-            }
+        if (this.config.inputId && this.config.inputId.length > 0) {
+            this.searchBarEls = [];
+            this.config.inputId.forEach(id => {
+                let searchBar = document.getElementById(id);
+                if (searchBar) {
+                    this.searchBarEls.push(searchBar);
+                    this.addSearchListeners(searchBar);
+                } else {
+                    this.error(`Enable to find the input element #${id}, please check your configuration`);
+                }
+            });
         }
 
-        if (this.config.outputId) {
-            this.searchResultElmt = document.getElementById(this.config.outputId);
-            if (!this.searchResultElmt) {
-                this.error(`Enable to find the output element #${this.config.outputId}, please check your configuration`);
-            }
+        if (this.config.outputId && this.config.outputId.length > 0) {
+            this.searchResultEls = [];
+            this.config.outputId.forEach(id => {
+                let searchResult = document.getElementById(id);
+                if (searchResult) {
+                    this.searchResultEls.push(searchResult)
+                } else {
+                    this.error(`Enable to find the output element #${id}, please check your configuration`);
+                }
+            });
         }
 
         this.index = this.getNewSearchIndex();
@@ -110,23 +123,21 @@ export default class SearchinGhost {
      * Set the search input bar and form event listeners to trigger
      * further searches
      */
-    addSearchListeners() {
+    addSearchListeners(searchBarEl) {
         // In any case, prevent the input form from being submitted
-        let searchForm = this.searchBarElmt.closest('form');
-        if (searchForm) {
-            searchForm.addEventListener("submit", (ev) => { ev.preventDefault(); });
-        }
+        let searchForm = searchBarEl.closest('form');
+        if (searchForm) searchForm.addEventListener("submit", (ev) => { ev.preventDefault(); });
 
         switch(this.config.searchOn) {
         case 'keyup':
-            this.searchBarElmt.addEventListener("keyup", () => {
-                let inputQuery = this.searchBarElmt.value.toLowerCase();
+            searchBarEl.addEventListener("keyup", () => {
+                let inputQuery = searchBarEl.value.toLowerCase();
                 this.search(inputQuery);
             });
             break;
         case 'submit':
             searchForm.addEventListener("submit", () => {
-                let inputQuery = this.searchBarElmt.value.toLowerCase();
+                let inputQuery = searchBarEl.value.toLowerCase();
                 this.search(inputQuery);
             });
             break;
@@ -145,11 +156,11 @@ export default class SearchinGhost {
     triggerDataLoad() {
         switch(this.config.loadOn) {
         case 'focus':
-            if (this.searchBarElmt) {
-                this.searchBarElmt.addEventListener('focus', () => {
+            this.searchBarEls.forEach(searchBarEl => {
+                searchBarEl.addEventListener('focus', () => {
                     this.loadData();
                 });
-            }
+            })
             break;
         case 'page':
             window.addEventListener('load', () => {
@@ -324,7 +335,7 @@ export default class SearchinGhost {
 
         let postsFound = this.index.search(inputQuery, this.config.searchOptions);
 
-        if (this.searchResultElmt) this.display(postsFound);
+        if (this.searchResultEls && this.searchResultEls.length > 0) this.display(postsFound);
 
         this.config.onSearchEnd(postsFound);
         return postsFound;
@@ -335,52 +346,36 @@ export default class SearchinGhost {
      * @param {Document[]} posts 
      */
     display(posts) {
-        this.searchResultElmt.innerHTML = '';
-
-        if (posts.length < 1) {
-            let generatedHtml = this.evaluateTemplate(this.config.emptyTemplate, null);
-            this.insertTemplate(generatedHtml);
-            return;
-        }
-
-        posts.forEach((post) => {
-            let generatedHtml = this.evaluateTemplate(this.config.template, post);
-            this.insertTemplate(generatedHtml);
+        this.searchResultEls.forEach(resultEl => {
+            resultEl.innerHTML = '';
         });
-    }
-
-    /**
-     * Apply post content against an HTML template.
-     * @param {function} template 
-     * @param {Document} optionalPost 
-     * @return {HTMLElement} The generated HTML node/string or undefined
-     */
-    evaluateTemplate(template, optionalPost) {
-        let generatedHTML = template(optionalPost);
         
-        if (!generatedHTML || !this.config.outputChildsType) {
-            // Return the raw template result or any falsy value
-            return generatedHTML;
+        if (posts.length < 1) {
+            this.insertTemplate(this.config.emptyTemplate());
+        } else {
+            posts.forEach(post => {
+                this.insertTemplate(this.config.template(post));
+            });
         }
-
-        // Encapsulate the HTML into a wrapping element
-        let newElement = document.createElement(this.config.outputChildsType);
-        newElement.classList.add(`${this.config.outputId}-item`);
-        newElement.innerHTML = generatedHTML;
-        return newElement;
     }
 
     /**
      * Insert the HTML generated by the template into the DOM results output element.
+     * If a falsy value is returned by the template, do not apply any update.
      * @param {*} generatedHtml HTML node element or HTML string
      */
     insertTemplate(generatedHtml) {
         if (generatedHtml) {
-            if (this.config.outputChildsType) {
-                this.searchResultElmt.appendChild(generatedHtml);
-            } else {
-                this.searchResultElmt.insertAdjacentHTML('beforeend', generatedHtml);
-            }
+            this.searchResultEls.forEach(resultEl => {
+                if (this.config.outputChildsType) {
+                    let child = document.createElement(this.config.outputChildsType);
+                    child.classList.add(`${resultEl.id}-item`);
+                    child.innerHTML = generatedHtml;
+                    resultEl.appendChild(child);
+                } else {
+                    resultEl.insertAdjacentHTML('beforeend', generatedHtml);
+                }
+            });
         }
     }
 

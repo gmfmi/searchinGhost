@@ -41,7 +41,7 @@ First, update the `default.hbs` file of your theme to include an input field and
 <input id="search-bar">
 <ul id="search-results"></ul>
 
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.5.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.6.0/dist/searchinghost.min.js"></script>
 <script>
     var searchinGhost = new SearchinGhost({
         key: 'CONTENT_API_KEY'
@@ -63,9 +63,9 @@ into your theme `default.hbs`. We also recommand the use of jsdelivr over unpkg 
 reliability and performance.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.5.0/dist/searchinghost.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/searchinghost@1.6.0/dist/searchinghost.min.js"></script>
 <!-- OR -->
-<script src="https://unpkg.com/searchinghost@1.5.0/dist/searchinghost.min.js"></script>
+<script src="https://unpkg.com/searchinghost@1.6.0/dist/searchinghost.min.js"></script>
 ```
 
 2. **From source**
@@ -141,8 +141,8 @@ time to look into each option from the next section.
     loadOn: 'focus',
     searchOn: 'keyup',
     limit: 10,
-    inputId: 'search-bar',
-    outputId: 'search-results',
+    inputId: ['search-bar'],
+    outputId: ['search-results'],
     outputChildsType: 'li',
     postsFields: ['title', 'url', 'excerpt', 'custom_excerpt', 'published_at', 'feature_image'],
     postsExtraFields: ['tags'],
@@ -200,9 +200,9 @@ time to look into each option from the next section.
 - **url** (string)
 > The full domaine name of the Ghost API.
 >
-> default: `window.location.origin`
->
 > example: `'https://demo.ghost.io'`
+>
+> default: `window.location.origin`
 
 - **version** (string)
 > Set the Ghost API version. Work with both `'v2'` and `'v3'`.
@@ -238,30 +238,39 @@ time to look into each option from the next section.
 > degrade performance too much. But remember, when the search engine hits this limit
 > it stops digging and return the results: the lower, the better.
 >
-> To display all the available results, use `0`.
+> Even though it is strongly discouraged, set this value to `0` to display all the available results.
 >
 > default: `10`
 
-- **inputId** (string)
-> The HTML `id` param defined on your input search bar.
+- **inputId** (array of string)
+> \[Deprecated] Before `v1.6.0`, this field was a `string`, this behaviour has been deprecated.
+>
+> Your website may have one or several search bars, each of them must have a unique
+> HTML `id` attribute. Put each search bar  `id` in this array.
 > Do not include '#' in the name.
 >
-> If you do not need any input field, set the value to `false` and also set `searchOn`
+> If you do not need any input field, set the value to `[]` (empty array) and also set `searchOn`
 > to `false` (boolean). Then, run a search using `searchinGhost.search("<your query>")`.
 >
-> default: `'search-bar'`
+> default: `['search-bar']`
 
-- **outputId** (string: 'search-results')
-> The HTML `id` param defined on your output element. This element should be
-> empty in your template, it will be filled with the search results.
+- **outputId** (array of string)
+> \[Deprecated] Before `v1.6.0`, this field was a `string`, this behaviour has been deprecated.
+>
+> Your website cann use one or more HTML elements to display the search results.
+> This array reference all these output element's `id` attribute.
+> If any of these elements has already a content, it will be overwitten by
+> the search results.
 >
 > If you are using a JS framework to display the search results, set this value to
-> `false` (boolean). You will get the posts found as the value returned by the
-> function `searchinGhost.search("<your query>")`;
+> `[]` (empty array). You will get the posts found as the value returned by the
+> function `searchinGhost.search("<your query>")`.
 >
-> default: `'search-results'`
+> default: `['search-results']`
 
 - **outputChildsType** (string)
+> \[Deprecated] Before the `v1.6.0`, this fields was a `string`. this has been deprecated.
+>
 > Each search result is wrapped inside a child element before being added to the
 > `outpudId` parent element. The default type is `li` but you can set it to any
 > valid HTML element (see [MDN docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element)).
