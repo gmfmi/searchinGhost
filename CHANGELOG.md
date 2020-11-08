@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (empty)
 
 
+## [1.6.2] - 2020-11-08
+### Fixed
+- Fix the backward compability issue of `inputId` and `outputId` of release `v1.6.0` and `v1.6.1`.
+
+
 ## [1.6.1] - 2020-11-08
 ### Fixed
 - Detect "deleted" and "unpublished" posts to trigger a cache invalidation

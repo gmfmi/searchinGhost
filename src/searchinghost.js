@@ -60,10 +60,6 @@ export default class SearchinGhost {
             searchOptions: {},
             debug: false
         }
-
-        // ensure config backward compatilibity of <1.5.0
-        if (!Array.isArray(this.config.inputId)) this.config.inputId = [this.config.inputId];
-        if (!Array.isArray(this.config.outputId)) this.config.outputId = [this.config.outputId];
         
         this.dataLoaded = false;  // flag to ensure data are properly loaded
         this.postsCount = 0;      // keep track of posts ID, must be numeric
@@ -81,6 +77,10 @@ export default class SearchinGhost {
         for (let [key, value] of Object.entries(args)) {
             this.config[key] = value;
         }
+
+        // ensure config backward compatilibity of <1.5.0
+        if (!Array.isArray(this.config.inputId)) this.config.inputId = [this.config.inputId];
+        if (!Array.isArray(this.config.outputId)) this.config.outputId = [this.config.outputId];
 
         // Inject the "limit" arg within the final searchOptions
         this.config.searchOptions.limit = this.config.limit;
