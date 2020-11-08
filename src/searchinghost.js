@@ -207,15 +207,17 @@ export default class SearchinGhost {
      * Ensure stored data are up to date.
      */
     validateCache() {
-        let lastUpdate = this.storage.getItem("SearchinGhost_lastCacheUpdateTimestamp");
-        if (!lastUpdate) {
-            this.log("No cache update timestamp found, purge the cache");
+        let cacheInfoString = this.storage.getItem("SearchinGhost_cache_info");
+        if (!cacheInfoString) {
+            this.log("No cache info local object found");
             this.fetch();
             return;
         }
 
-        lastUpdate = new Date(lastUpdate);
-        let elapsedTime = Math.round((new Date() - lastUpdate) / 1000);
+        let cacheInfo = JSON.parse(cacheInfoString);
+
+        const lastUpdate = new Date(cacheInfo.lastCacheCheck);
+        const elapsedTime = Math.round((new Date() - lastUpdate) / 1000);
         if (elapsedTime < this.config.cacheMaxAge) {
             this.log(`Skip cache refreshing, updated less than ${this.config.cacheMaxAge}s ago (${elapsedTime}s)`);
             return;
@@ -232,15 +234,19 @@ export default class SearchinGhost {
                 return response.json();
             })
             .then((jsonResponse) => {
-                const posts = jsonResponse.posts;
-                let storedUpdateTimestamp = this.storage.getItem("SearchinGhost_updatedat");
-                let latestPostUpdateTimestamp = posts[0].updated_at;
-                if (latestPostUpdateTimestamp !== storedUpdateTimestamp) {
-                    this.log("Local cache outdated, purge it");
+                const lastestPostUpdatedAt = jsonResponse.posts[0].updated_at;
+                const totalPosts = jsonResponse.meta.pagination.total;
+
+                if (lastestPostUpdatedAt !== cacheInfo.lastestPostUpdatedAt) {
+                    this.log("Posts update found, purge outdated local cache");
+                    this.fetch();
+                } else if (totalPosts < cacheInfo.totalPosts) {
+                    this.log("Deleted or unpublished posts found, purge outdated local cache")
                     this.fetch();
                 } else {
                     this.log("Local cached data up to date");
-                    this.storage.setItem("SearchinGhost_lastCacheUpdateTimestamp", new Date().toISOString());
+                    cacheInfo.lastCacheCheck = new Date().toISOString();
+                    this.storage.setItem("SearchinGhost_cache_info", JSON.stringify(cacheInfo));
                 }
             }).catch((error) => {
                 console.error("Unable to fetch the latest post information to check cache state", error);
@@ -271,8 +277,6 @@ export default class SearchinGhost {
                 const posts = jsonResponse.posts;
                 this.config.onFetchEnd(posts);
                 this.config.onIndexBuildStart();
-
-                let updatedAt = posts[0].updated_at;
                 
                 this.index = this.getNewSearchIndex();
                 posts.forEach((post) => {
@@ -284,9 +288,13 @@ export default class SearchinGhost {
                 this.config.onIndexBuildEnd(this.index);
 
                 if (this.storage) {
+                    const cacheInfo = {
+                        lastCacheCheck: new Date().toISOString(),
+                        lastestPostUpdatedAt: posts[0].updated_at,
+                        totalPosts: jsonResponse.meta.pagination.total
+                    }
                     this.storage.setItem("SearchinGhost_index", this.index.export());
-                    this.storage.setItem("SearchinGhost_updatedat", updatedAt);
-                    this.storage.setItem("SearchinGhost_lastCacheUpdateTimestamp", new Date().toISOString());
+                    this.storage.setItem("SearchinGhost_cache_info", JSON.stringify(cacheInfo));
                 }
 
                 this.log("Search index build complete");

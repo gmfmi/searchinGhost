@@ -1,6 +1,6 @@
 {
   "name": "searchinghost",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "A pure javascript, lightweight & in-browser full-text search plugin for Ghost (blog)",
   "main": "src/searchinghost.js",
   "scripts": {

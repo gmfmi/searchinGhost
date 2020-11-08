@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (empty)
 
 
+## [1.6.1] - 2020-11-08
+### Fixed
+- Detect "deleted" and "unpublished" posts to trigger a cache invalidation
+
+
 ## [1.6.0] - 2020-08-22
 ### Changed
 - The fields `inputId` and `outputId` now support array values. Very useful for multi search bars and/or
