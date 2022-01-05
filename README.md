@@ -3,7 +3,7 @@
 [![](https://data.jsdelivr.com/v1/package/npm/searchinghost/badge)](https://www.jsdelivr.com/package/npm/searchinghost)
 
 
-# SeachinGhost
+# SearchinGhost
 
 A pure javascript, lightweight & in-browser full-text search plugin for [Ghost](https://ghost.org/) (blog)
 
@@ -18,7 +18,7 @@ Everything happens in the client browser, it helps us to deliver blazing fast se
 in real-time to your users (a.k.a "search-as-you-type"). We also take care about minimizing network loads by
 relying on the browser `localStorage` only sending requests when necessary.
 
-You blog is in Cyrillic, Chinese, Korean, Greek, Indian or any other non-latin languague? No worries, it is supported, see the [dedicated section](#language-settings).
+You blog is in Cyrillic, Chinese, Korean, Greek, Indian or any other non-latin language? No worries, it is supported, see the [dedicated section](#language-settings).
 
 *__BONUS__: if you like the concept but you would like to install it quickly and easily (in less than 3 minutes, really!), please visit the [SearchinGhostEasy project](https://github.com/gmfmi/searchinghost-easy).*
 
@@ -30,7 +30,7 @@ Before diving into installation and configuration, give it a try by yourself wit
 On this demo, the searchable content comes from the official Ghost demo API (i.e. https://demo.ghost.io).
 Options are set to default so each input word is searched into posts title, tags, excerpt and main content.
 
-For example, search the word "marmalade". It does not exist in any post title, exerpt or tag but it is used one time in the "Down The Rabbit Hole" article, that why you will get it as a result.
+For example, search the word "marmalade". It does not exist in any post title, excerpt or tag but it is used one time in the "Down The Rabbit Hole" article, that why you will get it as a result.
 
 
 ## Quick Start
@@ -58,8 +58,8 @@ You can install SearchinGhost using various methods, here are the possibilities:
 
 1. **From a Content Delivery Network (CDN)**
 
-This is the easiest and prefered method to install SearchinGhost. Add one of these scripts
-into your theme `default.hbs`. We also recommand the use of jsdelivr over unpkg for its
+This is the easiest and preferred method to install SearchinGhost. Add one of these scripts
+into your theme `default.hbs`. We also recommend the use of jsdelivr over unpkg for its
 reliability and performance.
 
 ```html
@@ -257,9 +257,9 @@ time to look into each option from the next section.
 - **outputId** (array of string)
 > \[Deprecated] Before `v1.6.0`, this field was a `string`, this behaviour has been deprecated.
 >
-> Your website cann use one or more HTML elements to display the search results.
+> Your website can use one or more HTML elements to display the search results.
 > This array reference all these output element's `id` attribute.
-> If any of these elements has already a content, it will be overwitten by
+> If any of these elements has already a content, it will be overwritten by
 > the search results.
 >
 > If you are using a JS framework to display the search results, set this value to
@@ -272,7 +272,7 @@ time to look into each option from the next section.
 > \[Deprecated] Before the `v1.6.0`, this fields was a `string`. this has been deprecated.
 >
 > Each search result is wrapped inside a child element before being added to the
-> `outpudId` parent element. The default type is `li` but you can set it to any
+> `outputId` parent element. The default type is `li` but you can set it to any
 > valid HTML element (see [MDN docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element)).
 >
 > If you do not want to use a wrapping element to directly append the results of
@@ -292,7 +292,7 @@ time to look into each option from the next section.
 > default: `['title', 'url', 'excerpt', 'custom_excerpt', 'published_at', 'feature_image']`
 
 - **postsExtraFields** (array of strings)
-> This array allows you to use extra fields like `tags` or `authors`. I personnaly don't know
+> This array allows you to use extra fields like `tags` or `authors`. I personally don't know
 > why they are not with the other "fields" but the Ghost API is designed this way...
 >
 > Set its value to `[]` (empty array) to completely disable it.
@@ -321,7 +321,7 @@ time to look into each option from the next section.
 > *NOTE*: the `'string_tags'` weird field is added in the `customProcessing` option.
 > If you want to use tags, this ugly thing is necessary (for now) because FlexSearch
 > cannot properly handle arrays. If you do not want/like it, override the `customProcessing`
-> to only return `posts` without additionnal modification. If you decide to use tags,
+> to only return `posts` without additional modification. If you decide to use tags,
 > please also use `'string_tags'` here.
 >
 > default: `['title', 'string_tags', 'excerpt', 'plaintext']`
@@ -400,7 +400,7 @@ time to look into each option from the next section.
 > existing index is found in the local storage, it will be loaded without any
 > additional HTTP request to confirm its validity. When the cache is purged, the value is reset.
 >
-> This is espacially useful to save the broadband and network loads of your server. The default
+> This is especially useful to save the broadband and network loads of your server. The default
 > value is set to half an hour. This value comes from the default user session duration used by
 > Google analytics.
 >
@@ -420,7 +420,7 @@ time to look into each option from the next section.
 
 - **onFetchEnd** (function)
 > Define a callback function when the fetch is complete. Even if modifications
-> made to `posts` are persisted, we recommand the use of the `customProcessing()`
+> made to `posts` are persisted, we recommend the use of the `customProcessing()`
 > function to do so.
 >
 > The function takes one argument: the array of all posts returned by Ghost itself.
@@ -428,7 +428,7 @@ time to look into each option from the next section.
 > example:
 > ```js
 > onFetchEnd: function(posts) {
->   console.log("Total posts found on Ghost:", posts.lenght);
+>   console.log("Total posts found on Ghost:", posts.length);
 > }
 > ```
 
@@ -506,10 +506,10 @@ time to look into each option from the next section.
 
 - **searchOptions** (object)
 > Made for advanced users, allows you to fine tune the search queries.
-> Refer to [this](https://github.com/nextapps-de/flexsearch/tree/0.6.22#custom-search) Flexsearch documentation.
+> Refer to [this](https://github.com/nextapps-de/flexsearch/tree/0.6.22#custom-search) FlexSearch documentation.
 >
 > We use this specific query construction: `index.search("your query", searchOptions)` so anything added
-> to `searchOptions` will be passed to Flexsearch this way.
+> to `searchOptions` will be passed to FlexSearch this way.
 >
 > This parameter can be really handy when filtering posts based on a tag. As an example:
 > ```js
@@ -542,7 +542,7 @@ time to look into each option from the next section.
 
 ## Language settings
 
-If your blog uses a latin alphabet language (e.g. english, french, spanish) or a northern/eastern europeen one (e.g. german, swedish, hungarien, slovenian, estonian) the default configuration will work just fine. In the other cases, find the appropriate `indexOptions` value and add it to your main SearchinGhost configuration.
+If your blog uses a latin alphabet language (e.g. English, French, Spanish) or a Northern/Eastern European one (e.g. German, Swedish, Hungarian, Slovenian, Estonian) the default configuration will work just fine. In the other cases, find the appropriate `indexOptions` value and add it to your main SearchinGhost configuration.
 
 To create your own specific settings, refer to the
 [FlexSearch README](https://github.com/nextapps-de/flexsearch/tree/0.6.22#add-custom-matcher) and
@@ -625,9 +625,9 @@ At first, we also tried these other solutions: [Lunr.js](https://github.com/oliv
 [minisearch](https://github.com/lucaong/minisearch) and [fuse.js](https://fusejs.io/). At the end,
 [FlexSearch](https://github.com/nextapps-de/flexsearch) offered the best overall results with
 **fast** and **accurate** results, a **small enough** bundle size and it also was **easy** to
-setup/configure. It got everything to be choosen!
+setup/configure. It got everything to be chosen!
 
-### Why my new article do not appear in the search results?
+### Why does my new article not appear in the search results?
 
 No worries, it is normal. SearchinGhost uses a cache system to store your blog data in the
 browser an limit network interaction. By default, cached data stored less than 30 minutes
@@ -644,7 +644,7 @@ you should also set `loadOn` to `'focus'` to limit the number of HTTP requests.
 By default, when you use the `feature_image` URL variable to display images in your search results, you will always get the original/full size one
 and they are generally too large (in size and weight) for our needs, a miniature would be a better fit.
 
-Since Ghost V3, a media processing engine is embedded to create responsive images. By default, Ghost recreates 6 differents images
+Since Ghost V3, a media processing engine is embedded to create responsive images. By default, Ghost recreates 6 different images
 of the given one. The available sizes are: `w30`, `w100`, `w300`, `w600`, `w1000`, `w2000`.
 
 In our case, the easiest way load images faster is simply to use smaller images. Basically,
@@ -738,7 +738,7 @@ This way, nothing will be rendered behind your back and everything will stay und
 - [x] Set up a clean build process using Webpack
 - [x] Allow user to fetch data when page loads (not only on focus)
 - [x] Add callbacks like `onFetchStart()`, `onSearchStart()`, ...
-- [x] Use the GhostContentApi official library to give more configuation flexibility (and also support API v2)
+- [x] Use the GhostContentApi official library to give more configuration flexibility (and also support API v2)
 - [x] Expose cache max age option to users
 - [x] Add an optional empty template result
 - [x] Add a custom user-defined post reformat function called before indexation
@@ -764,7 +764,7 @@ $ npm install
 $ npm run build
 ```
 
-When developping, use the watch command instead, it will rebuild faster at each file modification
+When developing, use the watch command instead, it will rebuild faster at each file modification
 and include a link to the source map which make debugging easier.
 
 ```sh
@@ -781,38 +781,38 @@ Here is a short list of other related projects. You should definitely give
 them a try to see if they better fit your needs:
 
 
-[Ghost Hunter](https://github.com/jamalneufeld/ghostHunter) (v0.6.0 - 101 kB, 26 kB gzip)
+[GhostHunter](https://github.com/jamalneufeld/ghostHunter) (v0.6.0 - 101 kB, 26 kB gzip)
 
-> pros:
+> Pros:
 > - The most famous, a lot of articles and tutorials about it
 > - A powerful cache system based on localStorage
-> - Full text indexation (not only posts title)
+> - Full text indexing (not only posts title)
 >
-> cons:
-> - Rely on jQuery
+> Cons:
+> - Relies on jQuery
 > - Only works with the Ghost v2 API (for now)
 > - The source code became messy over time
 
 
-[Ghost search](https://github.com/HauntedThemes/ghost-search) (v1.1.0 - 12 kB, 4.2 kB gzip)
+[ghost-search](https://github.com/HauntedThemes/ghost-search) (v1.1.0 - 12 kB, 4.2 kB gzip)
 
-> pros:
-> - Well writen and easy-to-read code base
+> Pros:
+> - Well written and easy-to-read code base
 > - Leverage 'fuzzy' capabilities
 >
-> cons:
+> Cons:
 > - Browser lags when searching long words
 > - Might send too many API requests
-> - Do not use a scoring system to display the best results first
+> - Does not use a scoring system to display the best results first
 
  
-[Ghost finder](https://github.com/electronthemes/ghost-finder) (v3.0.1 - 827 kB, 159 kB gzip)
+[Ghost Finder](https://github.com/electronthemes/ghost-finder) (v3.1.2 - 459 kB, 116 kB gzip)
 
-> pros:
+> Pros:
 > - Pure Javascript library
 >
-> cons:
-> - The incredibly massive final bundle size
+> Cons:
+> - The massive final bundle size
 > - Send an HTTP request for each key pressed!
-> - Do not use a search engine, only look for substrings in posts titles
-> - Do not correctly index accentuated characters (e.g. 'é' should be found with 'e')
+> - Does not use a search engine, only looks for substrings in posts titles
+> - Does not correctly index accentuated characters (e.g. 'é' should be found with 'e')

@@ -78,7 +78,7 @@ export default class SearchinGhost {
             this.config[key] = value;
         }
 
-        // ensure config backward compatilibity of <1.5.0
+        // ensure config backward compatibility of <1.5.0
         if (!Array.isArray(this.config.inputId)) this.config.inputId = [this.config.inputId];
         if (!Array.isArray(this.config.outputId)) this.config.outputId = [this.config.outputId];
 
